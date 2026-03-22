@@ -1,0 +1,33 @@
+{
+  "name": "Frutiger Focus",
+  "short_name": "Frutiger Focus",
+  "description": "轻量级专注助手，番茄钟、待办事项、白噪音、专注统计",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#040d21",
+  "theme_color": "#00cec9",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "zh-CN",
+  "dir": "ltr"
+}

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="description" content="Frutiger Focus - Frutiger Aero 风格专注工具，番茄钟、待办事项、环境音、专注统计">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <title>Frutiger Focus</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ===== 顶部栏 ===== -->
+    <header class="top-bar">
+      <h1 class="app-title">🎯 Frutiger Focus</h1>
+      <button id="theme-toggle" class="icon-btn" title="切换主题" aria-label="切换主题">
+        <span class="icon-sun">☀️</span>
+        <span class="icon-moon">🌙</span>
+      </button>
+    </header>
+
+    <!-- ===== 页面容器 ===== -->
+    <main class="page-container">
+
+      <!-- ==================== 专注页 ==================== -->
+      <section id="page-timer" class="page active">
+        <div class="focus-layout">
+
+          <!-- 左侧/上方：计时器区域 -->
+          <div class="focus-main">
+            <!-- 今日统计概览条 -->
+            <div class="stats-bar">
+              <div class="stats-bar-item">
+                <span class="stats-bar-icon">🔥</span>
+                <span class="stats-bar-value" id="stat-today-time">0</span>
+                <span class="stats-bar-unit">分钟</span>
+              </div>
+              <div class="stats-bar-divider"></div>
+              <div class="stats-bar-item">
+                <span class="stats-bar-icon">🍅</span>
+                <span class="stats-bar-value" id="stat-today-sessions">0</span>
+                <span class="stats-bar-unit">次</span>
+              </div>
+              <div class="stats-bar-divider"></div>
+              <div class="stats-bar-item">
+                <span class="stats-bar-icon">✅</span>
+                <span class="stats-bar-value" id="stat-today-tasks">0</span>
+                <span class="stats-bar-unit">完成</span>
+              </div>
+            </div>
+
+            <!-- 计时器核心 -->
+            <div class="timer-core">
+              <!-- 圆形计时器 -->
+              <div class="timer-circle">
+                <svg class="timer-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="aero-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#00b4d8"/>
+                      <stop offset="50%" style="stop-color:#00cec9"/>
+                      <stop offset="100%" style="stop-color:#55efc4"/>
+                    </linearGradient>
+                  </defs>
+                  <circle class="timer-bg" cx="100" cy="100" r="90" />
+                  <circle class="timer-progress" cx="100" cy="100" r="90" id="timer-progress" stroke="url(#aero-gradient)" />
+                </svg>
+                <div class="timer-display">
+                  <span id="timer-time" class="timer-time">25:00</span>
+                  <span id="timer-label" class="timer-label">准备开始</span>
+                </div>
+              </div>
+
+              <!-- 今日专注计数器 -->
+              <div class="round-counter" id="round-counter">
+                <span class="round-icon">🍅</span>
+                <span class="round-label">今日专注</span>
+                <span class="round-count" id="round-count">×0</span>
+              </div>
+
+              <!-- 控制按钮区 -->
+              <div class="timer-controls">
+                <!-- idle 状态：只显示大开始按钮 -->
+                <div class="controls-idle" id="controls-idle">
+                  <button id="btn-start" class="ctrl-btn-start" title="开始专注">
+                    <span>▶</span>
+                    <label>开始专注</label>
+                  </button>
+                </div>
+                <!-- running/paused 状态：显示操作按钮组 -->
+                <div class="controls-active" id="controls-active" style="display:none;">
+                  <button id="btn-reset" class="ctrl-btn icon-circle" title="重置">↺</button>
+                  <button id="btn-pause" class="ctrl-btn-main" title="暂停">
+                    <span id="pause-icon">⏸</span>
+                  </button>
+                  <button id="btn-skip" class="ctrl-btn icon-circle" title="跳过">⏭</button>
+                </div>
+              </div>
+
+              <!-- 当前关联任务 -->
+              <div class="current-task" id="current-task" style="display:none;">
+                <span class="current-task-dot"></span>
+                <span class="current-task-name" id="current-task-name"></span>
+                <button class="current-task-clear" id="clear-current-task" title="取消关联">✕</button>
+              </div>
+
+              <!-- 模式选择 & 自定义时长 -->
+              <div class="mode-area">
+                <div class="mode-tabs">
+                  <button class="mode-tab active" data-mode="pomodoro">🍅 番茄钟</button>
+                  <button class="mode-tab" data-mode="custom">⏱ 自定义</button>
+                </div>
+                <div class="custom-input-area" id="custom-input-area" style="display:none;">
+                  <div class="custom-time-picker">
+                    <button class="time-adjust" id="time-minus">−</button>
+                    <div class="time-value-wrap">
+                      <input type="number" id="custom-minutes" value="30" min="1" max="180">
+                      <span class="time-suffix">分钟</span>
+                    </div>
+                    <button class="time-adjust" id="time-plus">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧/下方：白噪音 + 周统计（PC端横排，手机端竖排） -->
+          <div class="focus-sidebar">
+            <!-- 白噪音快捷面板 -->
+            <div class="panel ambient-panel">
+              <button class="panel-toggle" id="ambient-toggle">
+                <span>🎵 白噪音</span>
+                <span class="toggle-arrow" id="ambient-arrow">▾</span>
+              </button>
+              <div class="panel-content" id="ambient-content">
+                <div class="ambient-grid">
+                  <div class="sound-chip" data-sound="future">
+                    <span class="chip-icon">🔮</span>
+                    <span class="chip-name">未来</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="rain">
+                    <span class="chip-icon">🌧️</span>
+                    <span class="chip-name">雨声</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="forest">
+                    <span class="chip-icon">🌲</span>
+                    <span class="chip-name">森林</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="waves">
+                    <span class="chip-icon">🌊</span>
+                    <span class="chip-name">海浪</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="river">
+                    <span class="chip-icon">🏞️</span>
+                    <span class="chip-name">河流</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="fire">
+                    <span class="chip-icon">🔥</span>
+                    <span class="chip-name">壁炉</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="wind">
+                    <span class="chip-icon">💨</span>
+                    <span class="chip-name">微风</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                  <div class="sound-chip" data-sound="piano">
+                    <span class="chip-icon">🎹</span>
+                    <span class="chip-name">轻音乐</span>
+                    <input type="range" class="chip-volume" min="0" max="100" value="0">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 本周统计面板 -->
+            <div class="panel stats-panel">
+              <button class="panel-toggle" id="stats-toggle">
+                <span>📊 本周趋势</span>
+                <span class="toggle-arrow" id="stats-arrow">▾</span>
+              </button>
+              <div class="panel-content" id="stats-content">
+                <div class="chart-header">
+                  <button id="chart-prev" class="chart-nav-btn">‹</button>
+                  <span id="chart-week-label">本周</span>
+                  <button id="chart-next" class="chart-nav-btn">›</button>
+                </div>
+                <div class="chart-container">
+                  <canvas id="stats-chart" width="400" height="160"></canvas>
+                </div>
+                <div class="chart-total">
+                  本周共专注 <strong id="stat-week-total">0</strong> 分钟
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== 任务页 ==================== -->
+      <section id="page-tasks" class="page">
+        <div class="tasks-layout">
+
+          <!-- 任务列表 -->
+          <div class="tasks-body">
+            <!-- PC端添加任务按钮（手机端隐藏） -->
+            <button class="pc-add-task-btn" id="pc-add-task-btn" style="display:none;">
+              ＋ 新建任务
+            </button>
+
+            <!-- 进行中 -->
+            <div class="task-section">
+              <div class="task-section-header">
+                <h3>📌 进行中</h3>
+                <span class="task-count" id="active-count">0</span>
+              </div>
+              <ul class="task-list" id="task-list-active">
+                <!-- 动态渲染 -->
+              </ul>
+              <div class="tasks-empty" id="tasks-empty-active" style="display:none;">
+                <span class="empty-icon">📝</span>
+                <p class="empty-hint-mobile">暂无任务，点击右下角 + 添加</p>
+                <p class="empty-hint-pc">暂无任务，点击上方按钮添加</p>
+              </div>
+            </div>
+
+            <!-- 已完成（可折叠） -->
+            <div class="task-section">
+              <button class="task-section-header collapsible" id="done-toggle">
+                <div>
+                  <h3>✅ 已完成</h3>
+                  <span class="task-count" id="done-count">0</span>
+                </div>
+                <span class="collapse-arrow" id="done-arrow">▾</span>
+              </button>
+              <ul class="task-list" id="task-list-done">
+                <!-- 动态渲染 -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- FAB 添加按钮 -->
+          <button class="fab" id="fab-add-task" title="添加任务">+</button>
+
+          <!-- 添加任务浮层 -->
+          <div class="task-add-overlay" id="task-add-overlay" style="display:none;">
+            <div class="task-add-sheet">
+              <div class="task-add-header">
+                <h3>新建任务</h3>
+                <button class="task-add-close" id="task-add-close">✕</button>
+              </div>
+              <input type="text" id="task-input" placeholder="任务名称" maxlength="100" autofocus>
+              <div class="task-add-actions">
+                <button id="btn-add-task" class="task-add-submit">添加</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== 统计页 ==================== -->
+      <section id="page-stats" class="page">
+        <div class="stats-layout">
+
+          <!-- 顶部：累计核心指标（始终可见） -->
+          <div class="stats-metrics">
+            <div class="metric-card">
+              <span class="metric-icon">🍅</span>
+              <span class="metric-value" id="metric-total-sessions">0</span>
+              <span class="metric-label">总番茄</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">⏱</span>
+              <span class="metric-value" id="metric-total-time">0h</span>
+              <span class="metric-label">总时长</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">🔥</span>
+              <span class="metric-value" id="metric-streak">0</span>
+              <span class="metric-label">连续天数</span>
+              <span class="metric-badge" id="metric-streak-badge" style="display:none;">👑 最长</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">📊</span>
+              <span class="metric-value" id="metric-daily-avg">0m</span>
+              <span class="metric-label">日均时长</span>
+            </div>
+          </div>
+
+          <!-- 子标签切换 -->
+          <div class="stats-tabs">
+            <button class="stats-tab active" data-stats-tab="heatmap">📅 热力图</button>
+            <button class="stats-tab" data-stats-tab="trends">📈 趋势</button>
+            <button class="stats-tab" data-stats-tab="hours">⏰ 时段</button>
+          </div>
+
+          <!-- 子标签内容 -->
+          <div class="stats-tab-content">
+
+            <!-- 热力图面板 -->
+            <div class="stats-pane active" id="pane-heatmap">
+              <div class="heatmap-nav">
+                <button class="heatmap-nav-btn" id="heatmap-prev">‹</button>
+                <span class="heatmap-month-label" id="heatmap-month-label">2026年3月</span>
+                <button class="heatmap-nav-btn" id="heatmap-next">›</button>
+              </div>
+              <div class="heatmap-weekdays">
+                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+              </div>
+              <div class="heatmap-grid" id="heatmap-grid">
+                <!-- 动态渲染日期格子 -->
+              </div>
+              <div class="heatmap-legend">
+                <span class="legend-label">少</span>
+                <span class="legend-cell" data-level="0"></span>
+                <span class="legend-cell" data-level="1"></span>
+                <span class="legend-cell" data-level="2"></span>
+                <span class="legend-cell" data-level="3"></span>
+                <span class="legend-cell" data-level="4"></span>
+                <span class="legend-label">多</span>
+              </div>
+              <!-- 点击某天后显示的详情 -->
+              <div class="heatmap-detail" id="heatmap-detail" style="display:none;">
+                <div class="detail-date" id="detail-date"></div>
+                <div class="detail-stats" id="detail-stats"></div>
+              </div>
+            </div>
+
+            <!-- 趋势图表面板 -->
+            <div class="stats-pane" id="pane-trends">
+              <!-- 周柱状图 -->
+              <div class="chart-section">
+                <div class="chart-section-header">
+                  <h4>📊 周专注时长</h4>
+                  <div class="chart-nav">
+                    <button class="chart-nav-btn" id="week-chart-prev">‹</button>
+                    <span id="week-chart-label">本周</span>
+                    <button class="chart-nav-btn" id="week-chart-next">›</button>
+                  </div>
+                </div>
+                <div class="chart-wrap">
+                  <canvas id="week-bar-chart"></canvas>
+                </div>
+                <div class="chart-summary">
+                  本周共专注 <strong id="week-chart-total">0</strong> 分钟
+                </div>
+              </div>
+              <!-- 月趋势折线图 -->
+              <div class="chart-section">
+                <div class="chart-section-header">
+                  <h4>📈 月度趋势</h4>
+                  <div class="chart-nav">
+                    <button class="chart-nav-btn" id="month-chart-prev">‹</button>
+                    <span id="month-chart-label">3月</span>
+                    <button class="chart-nav-btn" id="month-chart-next">›</button>
+                  </div>
+                </div>
+                <div class="chart-wrap">
+                  <canvas id="month-line-chart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- 时段分布面板 -->
+            <div class="stats-pane" id="pane-hours">
+              <div class="chart-section">
+                <h4 style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">⏰ 24小时专注分布</h4>
+                <div class="chart-wrap chart-wrap-square">
+                  <canvas id="hours-polar-chart"></canvas>
+                </div>
+                <p class="chart-hint" id="hours-hint">数据越多，分布越准确</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 设置页 ==================== -->
+      <section id="page-settings" class="page">
+        <div class="settings-layout">
+
+          <div class="settings-group">
+            <h3>🍅 番茄钟</h3>
+            <div class="setting-item">
+              <label>专注时长</label>
+              <div class="setting-value">
+                <input type="number" id="setting-focus" value="25" min="1" max="120" class="setting-input">
+                <span class="setting-suffix">分钟</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <label>休息时长</label>
+              <div class="setting-value">
+                <input type="number" id="setting-rest" value="5" min="1" max="30" class="setting-input">
+                <span class="setting-suffix">分钟</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <label>计时结束提示音</label>
+              <label class="switch">
+                <input type="checkbox" id="setting-sound" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>🔔 提醒</h3>
+            <div class="setting-item">
+              <label>启用通知提醒</label>
+              <label class="switch">
+                <input type="checkbox" id="setting-notifications" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label>早晨提醒</label>
+              <input type="time" id="setting-morning-time" value="08:00" class="setting-input">
+            </div>
+            <div class="setting-item">
+              <label>晚间回顾</label>
+              <input type="time" id="setting-evening-time" value="21:00" class="setting-input">
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>💾 数据</h3>
+            <div class="setting-item">
+              <label>导出备份</label>
+              <button id="btn-export" class="action-btn">📤 导出</button>
+            </div>
+            <div class="setting-item">
+              <label>导入备份</label>
+              <button id="btn-import" class="action-btn">📥 导入</button>
+              <input type="file" id="import-file" accept=".json" style="display:none">
+            </div>
+            <div class="setting-item">
+              <label>清除所有数据</label>
+              <button id="btn-clear-data" class="action-btn danger">🗑️ 清除</button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>🔧 其他</h3>
+            <div class="setting-item">
+              <label>恢复默认设置</label>
+              <button id="btn-reset-settings" class="action-btn">↺ 恢复默认</button>
+            </div>
+          </div>
+
+          <div class="app-info">
+            <p>Frutiger Focus v1.3</p>
+            <p>That future once promised · PWA</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===== 底部导航（3个Tab） ===== -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-page="timer">
+        <span class="nav-icon">⏱️</span>
+        <span class="nav-label">专注</span>
+      </button>
+      <button class="nav-item" data-page="tasks">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">任务</span>
+      </button>
+      <button class="nav-item" data-page="stats">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">统计</span>
+      </button>
+      <button class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">设置</span>
+      </button>
+      <!-- PC侧边栏底部：主题切换 -->
+      <button class="nav-item nav-theme-toggle" id="sidebar-theme-toggle">
+        <span class="nav-icon">🌓</span>
+        <span class="nav-label">切换主题</span>
+      </button>
+    </nav>
+
+    <!-- ===== 弹窗 ===== -->
+    <div class="modal-overlay" id="modal-overlay" style="display:none;">
+      <div class="modal" id="modal">
+        <div class="modal-header">
+          <h3 id="modal-title">提示</h3>
+          <button class="modal-close" id="modal-close">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer" id="modal-footer">
+          <button class="modal-btn primary" id="modal-confirm">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
