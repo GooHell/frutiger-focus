@@ -119,16 +119,16 @@ const Timer = (() => {
         state.remainingSeconds = remaining;
         updateDisplay();
         startTimer();
-        showToast('⏱️ 计时器已恢复');
+        showToast(I18n.t('toast.timer_restored'));
         return true;
       } else if (data.status === 'paused') {
         state.remainingSeconds = data.remainingSeconds;
         state.status = 'paused';
         showActiveControls();
         els.pauseIcon.textContent = '▶';
-        els.label.textContent = '已暂停';
+        els.label.textContent = I18n.t('timer.paused');
         updateDisplay();
-        showToast('⏸ 计时器已恢复（暂停中）');
+        showToast(I18n.t('toast.timer_restored_paused'));
         return true;
       }
 
@@ -153,7 +153,7 @@ const Timer = (() => {
     document.querySelectorAll('.mode-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         if (state.status === 'running' || state.status === 'paused') {
-          showToast('⏱️ 计时中无法切换模式', 'error');
+          showToast(I18n.t('toast.mode_locked'), 'error');
           return;
         }
         setMode(tab.dataset.mode);
@@ -227,7 +227,7 @@ const Timer = (() => {
     state.status = 'running';
     showActiveControls();
     els.pauseIcon.textContent = '⏸';
-    els.label.textContent = state.phase === 'focus' ? '专注中...' : '休息中...';
+    els.label.textContent = state.phase === 'focus' ? I18n.t('timer.focusing') : I18n.t('timer.resting');
     saveTimerState();
 
     state.intervalId = setInterval(() => {
@@ -248,7 +248,7 @@ const Timer = (() => {
       state.status = 'paused';
       clearInterval(state.intervalId);
       els.pauseIcon.textContent = '▶';
-      els.label.textContent = '已暂停';
+      els.label.textContent = I18n.t('timer.paused');
       saveTimerState();
     } else if (state.status === 'paused') {
       startTimer();
@@ -270,11 +270,11 @@ const Timer = (() => {
 
     showIdleControls();
     updateDisplay();
-    els.label.textContent = '准备开始';
+    els.label.textContent = I18n.t('timer.ready');
 
     // 重置开始按钮文案
     const startLabel = els.btnStart.querySelector('label');
-    if (startLabel) startLabel.textContent = '开始专注';
+    if (startLabel) startLabel.textContent = I18n.t('timer.start_focus');
   }
 
   // ===== 跳过 =====
@@ -288,7 +288,7 @@ const Timer = (() => {
       clearInterval(state.intervalId);
       clearTimerState();
       enterIdleForNextRound();
-      showToast('⏭ 已跳过休息');
+      showToast(I18n.t('toast.skipped_rest'));
     }
   }
 
@@ -304,9 +304,9 @@ const Timer = (() => {
     if (actualMinutes >= 1) {
       // 保存为"不完全专注"
       await saveSession(true);
-      showToast(`⚠️ 不完全专注 · ${actualMinutes}分钟已记录`);
+      showToast(I18n.t('toast.incomplete_focus', actualMinutes));
     } else {
-      showToast('⏭ 已跳过（不足1分钟，不记录）');
+      showToast(I18n.t('toast.skip_too_short'));
     }
 
     // 自动进入休息
@@ -330,16 +330,16 @@ const Timer = (() => {
 
       if (state.mode === 'custom') {
         // 自定义模式：不自动休息，直接回 idle
-        showToast('✅ 专注完成！');
+        showToast(I18n.t('toast.focus_complete'));
         enterIdleForNextRound();
       } else {
         // 番茄钟模式：自动进入休息
-        showToast('✅ 专注完成！进入休息');
+        showToast(I18n.t('toast.focus_complete_rest'));
         enterRestPhase();
       }
     } else {
       // 休息完成 → 回到 idle，等待用户手动开始下一轮
-      showToast('☕ 休息结束！准备下一轮');
+      showToast(I18n.t('toast.rest_complete'));
       enterIdleForNextRound();
     }
 
@@ -366,18 +366,18 @@ const Timer = (() => {
 
     showIdleControls();
     updateDisplay();
-    els.label.textContent = '☕ 休息时间';
+    els.label.textContent = I18n.t('timer.rest_time');
     const restLabel = els.btnStart.querySelector('label');
-    if (restLabel) restLabel.textContent = '开始休息';
+    if (restLabel) restLabel.textContent = I18n.t('timer.start_rest');
 
     // 添加"跳过休息"链接
     const skipLink = document.createElement('button');
     skipLink.className = 'skip-rest-link';
-    skipLink.textContent = '跳过休息 →';
+    skipLink.textContent = I18n.t('timer.skip_rest');
     skipLink.onclick = () => {
       skipLink.remove();
       enterIdleForNextRound();
-      showToast('⏭ 已跳过休息');
+      showToast(I18n.t('toast.skipped_rest'));
     };
     els.controlsIdle.appendChild(skipLink);
 
@@ -404,9 +404,9 @@ const Timer = (() => {
 
     showIdleControls();
     updateDisplay();
-    els.label.textContent = '准备下一轮';
+    els.label.textContent = I18n.t('timer.next_round');
     const nextLabel = els.btnStart.querySelector('label');
-    if (nextLabel) nextLabel.textContent = '开始下一轮';
+    if (nextLabel) nextLabel.textContent = I18n.t('timer.start_next');
   }
 
   // ===== 保存专注记录 =====

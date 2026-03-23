@@ -18,7 +18,7 @@
     <!-- ===== 顶部栏 ===== -->
     <header class="top-bar">
       <h1 class="app-title">🎯 Frutiger Focus</h1>
-      <button id="theme-toggle" class="icon-btn" title="切换主题" aria-label="切换主题">
+      <button id="theme-toggle" class="icon-btn" data-i18n-title="topbar.theme_toggle" title="切换主题" aria-label="切换主题">
         <span class="icon-sun">☀️</span>
         <span class="icon-moon">🌙</span>
       </button>
@@ -38,19 +38,19 @@
               <div class="stats-bar-item">
                 <span class="stats-bar-icon">🔥</span>
                 <span class="stats-bar-value" id="stat-today-time">0</span>
-                <span class="stats-bar-unit">分钟</span>
+                <span class="stats-bar-unit" data-i18n="focus.minutes">分钟</span>
               </div>
               <div class="stats-bar-divider"></div>
               <div class="stats-bar-item">
                 <span class="stats-bar-icon">🍅</span>
                 <span class="stats-bar-value" id="stat-today-sessions">0</span>
-                <span class="stats-bar-unit">次</span>
+                <span class="stats-bar-unit" data-i18n="focus.sessions">次</span>
               </div>
               <div class="stats-bar-divider"></div>
               <div class="stats-bar-item">
                 <span class="stats-bar-icon">✅</span>
                 <span class="stats-bar-value" id="stat-today-tasks">0</span>
-                <span class="stats-bar-unit">完成</span>
+                <span class="stats-bar-unit" data-i18n="focus.done">完成</span>
               </div>
             </div>
 
@@ -71,14 +71,14 @@
                 </svg>
                 <div class="timer-display">
                   <span id="timer-time" class="timer-time">25:00</span>
-                  <span id="timer-label" class="timer-label">准备开始</span>
+                  <span id="timer-label" class="timer-label" data-i18n="timer.ready">准备开始</span>
                 </div>
               </div>
 
               <!-- 今日专注计数器 -->
               <div class="round-counter" id="round-counter">
                 <span class="round-icon">🍅</span>
-                <span class="round-label">今日专注</span>
+                <span class="round-label" data-i18n="timer.today_focus">今日专注</span>
                 <span class="round-count" id="round-count">×0</span>
               </div>
 
@@ -86,15 +86,15 @@
               <div class="timer-controls">
                 <!-- idle 状态：只显示大开始按钮 -->
                 <div class="controls-idle" id="controls-idle">
-                  <button id="btn-start" class="ctrl-btn-start" title="开始专注">
+                  <button id="btn-start" class="ctrl-btn-start" data-i18n-title="timer.start_focus" title="开始专注">
                     <span>▶</span>
-                    <label>开始专注</label>
+                    <label data-i18n="timer.start_focus">开始专注</label>
                   </button>
                 </div>
                 <!-- running/paused 状态：显示操作按钮组 -->
                 <div class="controls-active" id="controls-active" style="display:none;">
                   <button id="btn-reset" class="ctrl-btn icon-circle" title="重置">↺</button>
-                  <button id="btn-pause" class="ctrl-btn-main" title="暂停">
+                  <button id="btn-pause" class="ctrl-btn-main" data-i18n-title="timer.paused" title="暂停">
                     <span id="pause-icon">⏸</span>
                   </button>
                   <button id="btn-skip" class="ctrl-btn icon-circle" title="跳过">⏭</button>
@@ -111,15 +111,15 @@
               <!-- 模式选择 & 自定义时长 -->
               <div class="mode-area">
                 <div class="mode-tabs">
-                  <button class="mode-tab active" data-mode="pomodoro">🍅 番茄钟</button>
-                  <button class="mode-tab" data-mode="custom">⏱ 自定义</button>
+                  <button class="mode-tab active" data-mode="pomodoro" data-i18n="mode.pomodoro">🍅 番茄钟</button>
+                  <button class="mode-tab" data-mode="custom" data-i18n="mode.custom">⏱ 自定义</button>
                 </div>
                 <div class="custom-input-area" id="custom-input-area" style="display:none;">
                   <div class="custom-time-picker">
                     <button class="time-adjust" id="time-minus">−</button>
                     <div class="time-value-wrap">
                       <input type="number" id="custom-minutes" value="30" min="1" max="180">
-                      <span class="time-suffix">分钟</span>
+                      <span class="time-suffix" data-i18n="mode.minutes_suffix">分钟</span>
                     </div>
                     <button class="time-adjust" id="time-plus">+</button>
                   </div>
@@ -133,49 +133,49 @@
             <!-- 白噪音快捷面板 -->
             <div class="panel ambient-panel">
               <button class="panel-toggle" id="ambient-toggle">
-                <span>🎵 白噪音</span>
+                <span data-i18n="ambient.title">🎵 白噪音</span>
                 <span class="toggle-arrow" id="ambient-arrow">▾</span>
               </button>
               <div class="panel-content" id="ambient-content">
                 <div class="ambient-grid">
                   <div class="sound-chip" data-sound="future">
                     <span class="chip-icon">🔮</span>
-                    <span class="chip-name">未来</span>
+                    <span class="chip-name" data-i18n="ambient.future">未来</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="rain">
                     <span class="chip-icon">🌧️</span>
-                    <span class="chip-name">雨声</span>
+                    <span class="chip-name" data-i18n="ambient.rain">雨声</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="forest">
                     <span class="chip-icon">🌲</span>
-                    <span class="chip-name">森林</span>
+                    <span class="chip-name" data-i18n="ambient.forest">森林</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="waves">
                     <span class="chip-icon">🌊</span>
-                    <span class="chip-name">海浪</span>
+                    <span class="chip-name" data-i18n="ambient.waves">海浪</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="river">
                     <span class="chip-icon">🏞️</span>
-                    <span class="chip-name">河流</span>
+                    <span class="chip-name" data-i18n="ambient.river">河流</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="fire">
                     <span class="chip-icon">🔥</span>
-                    <span class="chip-name">壁炉</span>
+                    <span class="chip-name" data-i18n="ambient.fire">壁炉</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="wind">
                     <span class="chip-icon">💨</span>
-                    <span class="chip-name">微风</span>
+                    <span class="chip-name" data-i18n="ambient.wind">微风</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                   <div class="sound-chip" data-sound="piano">
                     <span class="chip-icon">🎹</span>
-                    <span class="chip-name">轻音乐</span>
+                    <span class="chip-name" data-i18n="ambient.piano">轻音乐</span>
                     <input type="range" class="chip-volume" min="0" max="100" value="0">
                   </div>
                 </div>
@@ -185,20 +185,20 @@
             <!-- 本周统计面板 -->
             <div class="panel stats-panel">
               <button class="panel-toggle" id="stats-toggle">
-                <span>📊 本周趋势</span>
+                <span data-i18n="sidebar.weekly_trend">📊 本周趋势</span>
                 <span class="toggle-arrow" id="stats-arrow">▾</span>
               </button>
               <div class="panel-content" id="stats-content">
                 <div class="chart-header">
                   <button id="chart-prev" class="chart-nav-btn">‹</button>
-                  <span id="chart-week-label">本周</span>
+                  <span id="chart-week-label" data-i18n="sidebar.this_week">本周</span>
                   <button id="chart-next" class="chart-nav-btn">›</button>
                 </div>
                 <div class="chart-container">
                   <canvas id="stats-chart" width="400" height="160"></canvas>
                 </div>
                 <div class="chart-total">
-                  本周共专注 <strong id="stat-week-total">0</strong> 分钟
+                  <span data-i18n="sidebar.week_total_prefix">本周共专注 </span><strong id="stat-week-total">0</strong><span data-i18n="sidebar.week_total_suffix"> 分钟</span>
                 </div>
               </div>
             </div>
@@ -214,14 +214,14 @@
           <!-- 任务列表 -->
           <div class="tasks-body">
             <!-- PC端添加任务按钮（手机端隐藏） -->
-            <button class="pc-add-task-btn" id="pc-add-task-btn" style="display:none;">
+            <button class="pc-add-task-btn" id="pc-add-task-btn" style="display:none;" data-i18n="tasks.add_new">
               ＋ 新建任务
             </button>
 
             <!-- 进行中 -->
             <div class="task-section">
               <div class="task-section-header">
-                <h3>📌 进行中</h3>
+                <h3 data-i18n="tasks.in_progress">📌 进行中</h3>
                 <span class="task-count" id="active-count">0</span>
               </div>
               <ul class="task-list" id="task-list-active">
@@ -229,8 +229,8 @@
               </ul>
               <div class="tasks-empty" id="tasks-empty-active" style="display:none;">
                 <span class="empty-icon">📝</span>
-                <p class="empty-hint-mobile">暂无任务，点击右下角 + 添加</p>
-                <p class="empty-hint-pc">暂无任务，点击上方按钮添加</p>
+                <p class="empty-hint-mobile" data-i18n="tasks.empty_mobile">暂无任务，点击右下角 + 添加</p>
+                <p class="empty-hint-pc" data-i18n="tasks.empty_pc">暂无任务，点击上方按钮添加</p>
               </div>
             </div>
 
@@ -238,7 +238,7 @@
             <div class="task-section">
               <button class="task-section-header collapsible" id="done-toggle">
                 <div>
-                  <h3>✅ 已完成</h3>
+                  <h3 data-i18n="tasks.completed">✅ 已完成</h3>
                   <span class="task-count" id="done-count">0</span>
                 </div>
                 <span class="collapse-arrow" id="done-arrow">▾</span>
@@ -256,12 +256,12 @@
           <div class="task-add-overlay" id="task-add-overlay" style="display:none;">
             <div class="task-add-sheet">
               <div class="task-add-header">
-                <h3>新建任务</h3>
+                <h3 data-i18n="tasks.new_task">新建任务</h3>
                 <button class="task-add-close" id="task-add-close">✕</button>
               </div>
-              <input type="text" id="task-input" placeholder="任务名称" maxlength="100" autofocus>
+              <input type="text" id="task-input" data-i18n-placeholder="tasks.task_name" placeholder="任务名称" maxlength="100" autofocus>
               <div class="task-add-actions">
-                <button id="btn-add-task" class="task-add-submit">添加</button>
+                <button id="btn-add-task" class="task-add-submit" data-i18n="tasks.add">添加</button>
               </div>
             </div>
           </div>
@@ -278,31 +278,31 @@
             <div class="metric-card">
               <span class="metric-icon">🍅</span>
               <span class="metric-value" id="metric-total-sessions">0</span>
-              <span class="metric-label">总番茄</span>
+              <span class="metric-label" data-i18n="stats.total_pomodoros">总番茄</span>
             </div>
             <div class="metric-card">
               <span class="metric-icon">⏱</span>
               <span class="metric-value" id="metric-total-time">0h</span>
-              <span class="metric-label">总时长</span>
+              <span class="metric-label" data-i18n="stats.total_time">总时长</span>
             </div>
             <div class="metric-card">
               <span class="metric-icon">🔥</span>
               <span class="metric-value" id="metric-streak">0</span>
-              <span class="metric-label">连续天数</span>
-              <span class="metric-badge" id="metric-streak-badge" style="display:none;">👑 最长</span>
+              <span class="metric-label" data-i18n="stats.streak_days">连续天数</span>
+              <span class="metric-badge" id="metric-streak-badge" style="display:none;" data-i18n="stats.longest_badge">👑 最长</span>
             </div>
             <div class="metric-card">
               <span class="metric-icon">📊</span>
               <span class="metric-value" id="metric-daily-avg">0m</span>
-              <span class="metric-label">日均时长</span>
+              <span class="metric-label" data-i18n="stats.daily_avg">日均时长</span>
             </div>
           </div>
 
           <!-- 子标签切换 -->
           <div class="stats-tabs">
-            <button class="stats-tab active" data-stats-tab="heatmap">📅 热力图</button>
-            <button class="stats-tab" data-stats-tab="trends">📈 趋势</button>
-            <button class="stats-tab" data-stats-tab="hours">⏰ 时段</button>
+            <button class="stats-tab active" data-stats-tab="heatmap" data-i18n="stats.tab_heatmap">📅 热力图</button>
+            <button class="stats-tab" data-stats-tab="trends" data-i18n="stats.tab_trends">📈 趋势</button>
+            <button class="stats-tab" data-stats-tab="hours" data-i18n="stats.tab_hours">⏰ 时段</button>
           </div>
 
           <!-- 子标签内容 -->
@@ -316,19 +316,19 @@
                 <button class="heatmap-nav-btn" id="heatmap-next">›</button>
               </div>
               <div class="heatmap-weekdays">
-                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                <span data-i18n-weekday="0">一</span><span data-i18n-weekday="1">二</span><span data-i18n-weekday="2">三</span><span data-i18n-weekday="3">四</span><span data-i18n-weekday="4">五</span><span data-i18n-weekday="5">六</span><span data-i18n-weekday="6">日</span>
               </div>
               <div class="heatmap-grid" id="heatmap-grid">
                 <!-- 动态渲染日期格子 -->
               </div>
               <div class="heatmap-legend">
-                <span class="legend-label">少</span>
+                <span class="legend-label" data-i18n="heatmap.less">少</span>
                 <span class="legend-cell" data-level="0"></span>
                 <span class="legend-cell" data-level="1"></span>
                 <span class="legend-cell" data-level="2"></span>
                 <span class="legend-cell" data-level="3"></span>
                 <span class="legend-cell" data-level="4"></span>
-                <span class="legend-label">多</span>
+                <span class="legend-label" data-i18n="heatmap.more">多</span>
               </div>
               <!-- 点击某天后显示的详情 -->
               <div class="heatmap-detail" id="heatmap-detail" style="display:none;">
@@ -342,10 +342,10 @@
               <!-- 周柱状图 -->
               <div class="chart-section">
                 <div class="chart-section-header">
-                  <h4>📊 周专注时长</h4>
+                  <h4 data-i18n="chart.weekly_focus">📊 周专注时长</h4>
                   <div class="chart-nav">
                     <button class="chart-nav-btn" id="week-chart-prev">‹</button>
-                    <span id="week-chart-label">本周</span>
+                    <span id="week-chart-label" data-i18n="chart.this_week">本周</span>
                     <button class="chart-nav-btn" id="week-chart-next">›</button>
                   </div>
                 </div>
@@ -353,13 +353,13 @@
                   <canvas id="week-bar-chart"></canvas>
                 </div>
                 <div class="chart-summary">
-                  本周共专注 <strong id="week-chart-total">0</strong> 分钟
+                  <span data-i18n="chart.week_total_prefix">本周共专注 </span><strong id="week-chart-total">0</strong><span data-i18n="chart.week_total_suffix"> 分钟</span>
                 </div>
               </div>
               <!-- 月趋势折线图 -->
               <div class="chart-section">
                 <div class="chart-section-header">
-                  <h4>📈 月度趋势</h4>
+                  <h4 data-i18n="chart.monthly_trend">📈 月度趋势</h4>
                   <div class="chart-nav">
                     <button class="chart-nav-btn" id="month-chart-prev">‹</button>
                     <span id="month-chart-label">3月</span>
@@ -375,11 +375,11 @@
             <!-- 时段分布面板 -->
             <div class="stats-pane" id="pane-hours">
               <div class="chart-section">
-                <h4 style="text-align:center; margin-bottom:12px; color:var(--text-secondary);">⏰ 24小时专注分布</h4>
+                <h4 style="text-align:center; margin-bottom:12px; color:var(--text-secondary);" data-i18n="hours.title">⏰ 24小时专注分布</h4>
                 <div class="chart-wrap chart-wrap-square">
                   <canvas id="hours-polar-chart"></canvas>
                 </div>
-                <p class="chart-hint" id="hours-hint">数据越多，分布越准确</p>
+                <p class="chart-hint" id="hours-hint" data-i18n="hours.no_data">数据越多，分布越准确</p>
               </div>
             </div>
 
@@ -392,23 +392,23 @@
         <div class="settings-layout">
 
           <div class="settings-group">
-            <h3>🍅 番茄钟</h3>
+            <h3 data-i18n="settings.pomodoro">🍅 番茄钟</h3>
             <div class="setting-item">
-              <label>专注时长</label>
+              <label data-i18n="settings.focus_duration">专注时长</label>
               <div class="setting-value">
                 <input type="number" id="setting-focus" value="25" min="1" max="120" class="setting-input">
-                <span class="setting-suffix">分钟</span>
+                <span class="setting-suffix" data-i18n="settings.minutes">分钟</span>
               </div>
             </div>
             <div class="setting-item">
-              <label>休息时长</label>
+              <label data-i18n="settings.rest_duration">休息时长</label>
               <div class="setting-value">
                 <input type="number" id="setting-rest" value="5" min="1" max="30" class="setting-input">
-                <span class="setting-suffix">分钟</span>
+                <span class="setting-suffix" data-i18n="settings.minutes">分钟</span>
               </div>
             </div>
             <div class="setting-item">
-              <label>计时结束提示音</label>
+              <label data-i18n="settings.end_sound">计时结束提示音</label>
               <label class="switch">
                 <input type="checkbox" id="setting-sound" checked>
                 <span class="slider"></span>
@@ -417,52 +417,122 @@
           </div>
 
           <div class="settings-group">
-            <h3>🔔 提醒</h3>
+            <h3 data-i18n="settings.reminders">🔔 提醒</h3>
             <div class="setting-item">
-              <label>启用通知提醒</label>
+              <label data-i18n="settings.enable_notifications">启用通知提醒</label>
               <label class="switch">
                 <input type="checkbox" id="setting-notifications" checked>
                 <span class="slider"></span>
               </label>
             </div>
             <div class="setting-item">
-              <label>早晨提醒</label>
+              <label data-i18n="settings.morning_reminder">早晨提醒</label>
               <input type="time" id="setting-morning-time" value="08:00" class="setting-input">
             </div>
             <div class="setting-item">
-              <label>晚间回顾</label>
+              <label data-i18n="settings.evening_review">晚间回顾</label>
               <input type="time" id="setting-evening-time" value="21:00" class="setting-input">
             </div>
           </div>
 
           <div class="settings-group">
-            <h3>💾 数据</h3>
+            <h3 data-i18n="settings.data_portability">💾 数据便携</h3>
+            <p class="settings-hint" data-i18n="settings.data_hint">一键复制你的数据文本，粘贴到新设备即可恢复。</p>
+
+            <!-- 导出：生成压缩文本 -->
             <div class="setting-item">
-              <label>导出备份</label>
-              <button id="btn-export" class="action-btn">📤 导出</button>
+              <button id="btn-export-text" class="action-btn full-width" data-i18n="settings.export_clipboard">📤 导出数据到剪贴板</button>
             </div>
-            <div class="setting-item">
-              <label>导入备份</label>
-              <button id="btn-import" class="action-btn">📥 导入</button>
-              <input type="file" id="import-file" accept=".json" style="display:none">
+            <div class="data-text-area" id="export-text-area" style="display:none;">
+              <textarea id="export-text-output" readonly rows="4" placeholder="点击上方按钮生成..."></textarea>
+              <button id="btn-copy-export" class="action-btn small" data-i18n="settings.copy">📋 复制</button>
             </div>
+
+            <!-- 导入：粘贴压缩文本 -->
             <div class="setting-item">
-              <label>清除所有数据</label>
-              <button id="btn-clear-data" class="action-btn danger">🗑️ 清除</button>
+              <button id="btn-show-import" class="action-btn full-width" data-i18n="settings.restore_from_text">📥 从文本恢复数据</button>
+            </div>
+            <div class="data-text-area" id="import-text-area" style="display:none;">
+              <textarea id="import-text-input" rows="4" placeholder="粘贴之前导出的数据文本到这里..."></textarea>
+              <div class="import-actions">
+                <button id="btn-import-replace" class="action-btn small danger" data-i18n="settings.import_replace">替换导入</button>
+                <button id="btn-import-merge" class="action-btn small" data-i18n="settings.import_merge">合并导入</button>
+              </div>
+            </div>
+
+            <!-- 文件导入导出（备选） -->
+            <details class="settings-details">
+              <summary data-i18n="settings.file_import_export">📁 文件导入/导出（高级）</summary>
+              <div class="setting-item">
+                <label data-i18n="settings.export_json">导出 JSON 文件</label>
+                <button id="btn-export" class="action-btn" data-i18n="settings.export">📤 导出</button>
+              </div>
+              <div class="setting-item">
+                <label data-i18n="settings.import_json">导入 JSON 文件</label>
+                <button id="btn-import" class="action-btn" data-i18n="settings.import">📥 导入</button>
+                <input type="file" id="import-file" accept=".json" style="display:none">
+              </div>
+            </details>
+
+            <div class="setting-item" style="margin-top: 8px;">
+              <label data-i18n="settings.clear_all">清除所有数据</label>
+              <button id="btn-clear-data" class="action-btn danger" data-i18n="settings.clear">🗑️ 清除</button>
+            </div>
+          </div>
+
+          <!-- 云同步（高级） -->
+          <div class="settings-group">
+            <h3 data-i18n="settings.cloud_sync">☁️ 云同步</h3>
+            <p class="settings-hint" data-i18n="settings.cloud_hint">通过 GitHub Gist 在多设备间同步数据（需要 GitHub 账号）。</p>
+
+            <div class="setting-item">
+              <label data-i18n="settings.github_token">GitHub Token</label>
+              <div class="setting-value">
+                <input type="password" id="setting-gist-token" class="setting-input token-input" data-i18n-placeholder="settings.token_placeholder" placeholder="粘贴你的 Token">
+                <button id="btn-toggle-token" class="icon-btn-small" title="显示/隐藏">👁</button>
+              </div>
+            </div>
+
+            <details class="settings-details">
+              <summary data-i18n="settings.how_to_token">🔑 如何获取 Token？</summary>
+              <ol class="token-guide">
+                <li data-i18n="settings.token_step1">打开 <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener">GitHub Token 创建页面</a></li>
+                <li data-i18n="settings.token_step2">Note 填写 <code>Frutiger Focus</code></li>
+                <li data-i18n="settings.token_step3">Expiration 选择 <code>No expiration</code></li>
+                <li data-i18n="settings.token_step4">勾选 <code>gist</code> 权限</li>
+                <li data-i18n="settings.token_step5">点击 <code>Generate token</code></li>
+                <li data-i18n="settings.token_step6">复制生成的 Token，粘贴到上方输入框</li>
+              </ol>
+            </details>
+
+            <div class="sync-actions">
+              <button id="btn-sync-push" class="action-btn" data-i18n="settings.push_cloud">📤 推送到云端</button>
+              <button id="btn-sync-pull" class="action-btn" data-i18n="settings.pull_cloud">📥 从云端恢复</button>
+            </div>
+            <div class="sync-status" id="sync-status" style="display:none;">
+              <span class="sync-icon" id="sync-icon">⏳</span>
+              <span class="sync-message" id="sync-message">同步中...</span>
             </div>
           </div>
 
           <div class="settings-group">
-            <h3>🔧 其他</h3>
+            <h3 data-i18n="settings.other">🔧 其他</h3>
             <div class="setting-item">
-              <label>恢复默认设置</label>
-              <button id="btn-reset-settings" class="action-btn">↺ 恢复默认</button>
+              <label data-i18n="settings.language">🌐 语言</label>
+              <select id="setting-language" class="setting-input">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <label data-i18n="settings.reset_default">恢复默认设置</label>
+              <button id="btn-reset-settings" class="action-btn" data-i18n="settings.reset_btn">↺ 恢复默认</button>
             </div>
           </div>
 
           <div class="app-info">
-            <p>Frutiger Focus v1.3</p>
-            <p>That future once promised · PWA</p>
+            <p data-i18n="settings.version">Frutiger Focus v1.3</p>
+            <p data-i18n="settings.slogan">That future once promised · PWA</p>
           </div>
         </div>
       </section>
@@ -472,24 +542,24 @@
     <nav class="bottom-nav">
       <button class="nav-item active" data-page="timer">
         <span class="nav-icon">⏱️</span>
-        <span class="nav-label">专注</span>
+        <span class="nav-label" data-i18n="nav.focus">专注</span>
       </button>
       <button class="nav-item" data-page="tasks">
         <span class="nav-icon">📋</span>
-        <span class="nav-label">任务</span>
+        <span class="nav-label" data-i18n="nav.tasks">任务</span>
       </button>
       <button class="nav-item" data-page="stats">
         <span class="nav-icon">📊</span>
-        <span class="nav-label">统计</span>
+        <span class="nav-label" data-i18n="nav.stats">统计</span>
       </button>
       <button class="nav-item" data-page="settings">
         <span class="nav-icon">⚙️</span>
-        <span class="nav-label">设置</span>
+        <span class="nav-label" data-i18n="nav.settings">设置</span>
       </button>
       <!-- PC侧边栏底部：主题切换 -->
       <button class="nav-item nav-theme-toggle" id="sidebar-theme-toggle">
         <span class="nav-icon">🌓</span>
-        <span class="nav-label">切换主题</span>
+        <span class="nav-label" data-i18n="nav.theme">切换主题</span>
       </button>
     </nav>
 
@@ -512,6 +582,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/db.js"></script>
   <script src="js/timer.js"></script>
   <script src="js/tasks.js"></script>

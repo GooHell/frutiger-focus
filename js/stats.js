@@ -304,7 +304,12 @@ const Stats = (() => {
     const month = heatmapMonth;
 
     // 更新标题
-    els.heatmapLabel.textContent = `${year}年${month + 1}月`;
+    // 热力图月份标题
+    if (I18n.getLang() === 'en') {
+      els.heatmapLabel.textContent = I18n.t('heatmap.month_format').replace('{month}', I18n.getMonthName(month)).replace('{year}', year);
+    } else {
+      els.heatmapLabel.textContent = `${year}年${month + 1}月`;
+    }
 
     // 隐藏详情
     els.heatmapDetail.style.display = 'none';
@@ -385,20 +390,25 @@ const Stats = (() => {
   function showDayDetail(dateStr, data) {
     els.heatmapDetail.style.display = '';
     const d = new Date(dateStr);
-    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-    els.detailDate.textContent = `${d.getMonth() + 1}月${d.getDate()}日 ${weekdays[d.getDay()]}`;
+    const weekdayNames = I18n.t('heatmap.weekday_names');
+    const wdName = Array.isArray(weekdayNames) ? weekdayNames[d.getDay()] : '';
+    if (I18n.getLang() === 'en') {
+      els.detailDate.textContent = `${wdName}, ${I18n.getMonthName(d.getMonth())} ${d.getDate()}`;
+    } else {
+      els.detailDate.textContent = `${d.getMonth() + 1}月${d.getDate()}日 ${wdName}`;
+    }
 
     if (!data || data.count === 0) {
-      els.detailStats.innerHTML = '<span class="detail-empty">这一天没有专注记录</span>';
+      els.detailStats.innerHTML = `<span class="detail-empty">${I18n.t('heatmap.no_record')}</span>`;
       return;
     }
 
     const complete = data.sessions.filter(s => !s.incomplete).length;
     const incomplete = data.sessions.filter(s => s.incomplete).length;
-    let html = `<div class="detail-row">🍅 番茄 <strong>${complete}</strong>`;
-    if (incomplete > 0) html += ` <span class="detail-dim">(+${incomplete}未完成)</span>`;
+    let html = `<div class="detail-row">${I18n.t('heatmap.pomodoro_count', `<strong>${complete}</strong>`)}`;
+    if (incomplete > 0) html += ` <span class="detail-dim">${I18n.t('heatmap.incomplete_count', incomplete)}</span>`;
     html += `</div>`;
-    html += `<div class="detail-row">⏱ 时长 <strong>${data.minutes}</strong> 分钟</div>`;
+    html += `<div class="detail-row">${I18n.t('heatmap.duration', `<strong>${data.minutes}</strong>`)}</div>`;
 
     // 按小时分布小条
     const hourBuckets = new Array(24).fill(0);
@@ -428,8 +438,8 @@ const Stats = (() => {
     try {
       const { startDate, endDate, dates, labels } = getWeekRange(weekOffset);
       if (els.oldWeekLabel) {
-        if (weekOffset === 0) els.oldWeekLabel.textContent = '本周';
-        else if (weekOffset === -1) els.oldWeekLabel.textContent = '上周';
+        if (weekOffset === 0) els.oldWeekLabel.textContent = I18n.t('sidebar.this_week');
+        else if (weekOffset === -1) els.oldWeekLabel.textContent = I18n.t('sidebar.last_week');
         else {
           const start = new Date(startDate);
           els.oldWeekLabel.textContent = `${start.getMonth() + 1}/${start.getDate()}`;
@@ -511,11 +521,11 @@ const Stats = (() => {
     try {
       const { startDate, endDate, dates, labels } = getWeekRange(weekOffset);
       // 标签
-      if (weekOffset === 0) els.weekChartLabel.textContent = '本周';
-      else if (weekOffset === -1) els.weekChartLabel.textContent = '上周';
+      if (weekOffset === 0) els.weekChartLabel.textContent = I18n.t('chart.this_week');
+      else if (weekOffset === -1) els.weekChartLabel.textContent = I18n.t('chart.last_week');
       else {
         const s = new Date(startDate);
-        els.weekChartLabel.textContent = `${s.getMonth() + 1}/${s.getDate()}起`;
+        els.weekChartLabel.textContent = I18n.t('chart.week_from', `${s.getMonth() + 1}/${s.getDate()}`);
       }
 
       const sessions = await DB.getSessionsByDateRange(startDate, endDate);
@@ -588,9 +598,9 @@ const Stats = (() => {
               callbacks: {
                 title: (items) => {
                   const idx = items[0].dataIndex;
-                  return dates[idx] === today ? `${labels[idx]}（今天）` : labels[idx];
+                  return dates[idx] === today ? labels[idx] + I18n.t('chart.today_suffix') : labels[idx];
                 },
-                label: (item) => `专注 ${item.raw} 分钟`
+                label: (item) => I18n.t('chart.focus_minutes', item.raw)
               }
             }
           }
@@ -610,7 +620,12 @@ const Stats = (() => {
       const month = targetDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      els.monthChartLabel.textContent = `${year === now.getFullYear() ? '' : year + '年'}${month + 1}月`;
+      if (I18n.getLang() === 'en') {
+        const prefix = year === now.getFullYear() ? '' : year + ' ';
+        els.monthChartLabel.textContent = prefix + I18n.getMonthName(month);
+      } else {
+        els.monthChartLabel.textContent = `${year === now.getFullYear() ? '' : year + '年'}${month + 1}月`;
+      }
 
       const startStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
       const endStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
@@ -618,9 +633,10 @@ const Stats = (() => {
 
       const labels = [];
       const data = [];
+      const daySuffix = I18n.t('chart.day_suffix');
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        labels.push(`${d}日`);
+        labels.push(`${d}${daySuffix}`);
         data.push(sessions.filter(s => s.date === dateStr).reduce((sum, s) => sum + (s.duration || 0), 0));
       }
 
@@ -669,7 +685,7 @@ const Stats = (() => {
           plugins: {
             tooltip: {
               callbacks: {
-                label: item => `专注 ${item.raw} 分钟`
+                label: item => I18n.t('chart.focus_minutes', item.raw)
               }
             }
           }
@@ -693,7 +709,7 @@ const Stats = (() => {
 
       const labels = hourBuckets.map((_, i) => `${i}:00`);
       const hasData = hourBuckets.some(v => v > 0);
-      els.hoursHint.textContent = hasData ? '' : '暂无足够数据';
+      els.hoursHint.textContent = hasData ? '' : I18n.t('hours.no_data');
 
       const ctx = els.hoursChartCanvas.getContext('2d');
 
@@ -731,7 +747,7 @@ const Stats = (() => {
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: item => `${item.label} — ${item.raw} 分钟`
+                label: item => I18n.t('hours.tooltip', item.label, item.raw)
               }
             }
           }
@@ -747,7 +763,7 @@ const Stats = (() => {
     const monday = new Date(now);
     monday.setDate(now.getDate() - dayOfWeek + 1 + offset * 7);
     const dates = [];
-    const labels = ['一', '二', '三', '四', '五', '六', '日'];
+    const labels = I18n.t('chart.weekday_labels');
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);

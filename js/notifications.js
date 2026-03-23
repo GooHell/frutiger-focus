@@ -102,37 +102,37 @@ const Notifications = (() => {
 
   // 早晨提醒弹窗
   async function showMorningPrompt() {
-    sendBrowserNotification('新的一天开始了！来规划今天的任务吧 🌅', '早安！');
+    sendBrowserNotification(I18n.t('notif.morning_body'), I18n.t('notif.morning_title'));
 
     const overlay = document.getElementById('modal-overlay');
     const title = document.getElementById('modal-title');
     const body = document.getElementById('modal-body');
     const footer = document.getElementById('modal-footer');
 
-    title.textContent = '🌅 早安！新的一天';
+    title.textContent = I18n.t('notif.morning_modal_title');
     body.innerHTML = `
       <p style="color: var(--text-secondary); margin-bottom: 16px;">
-        今天想要完成什么？添加今天的任务吧：
+        ${I18n.t('notif.morning_prompt')}
       </p>
       <div style="display:flex; flex-direction:column; gap:8px;">
         <div class="morning-task-input" style="display:flex; gap:8px;">
-          <input type="text" id="morning-task-1" placeholder="任务 1..." 
+          <input type="text" id="morning-task-1" placeholder="${I18n.t('notif.task_placeholder', 1)}" 
                  style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-input); color:var(--text-primary); font-size:0.9rem;">
         </div>
         <div class="morning-task-input" style="display:flex; gap:8px;">
-          <input type="text" id="morning-task-2" placeholder="任务 2..." 
+          <input type="text" id="morning-task-2" placeholder="${I18n.t('notif.task_placeholder', 2)}" 
                  style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-input); color:var(--text-primary); font-size:0.9rem;">
         </div>
         <div class="morning-task-input" style="display:flex; gap:8px;">
-          <input type="text" id="morning-task-3" placeholder="任务 3..." 
+          <input type="text" id="morning-task-3" placeholder="${I18n.t('notif.task_placeholder', 3)}" 
                  style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-input); color:var(--text-primary); font-size:0.9rem;">
         </div>
       </div>
     `;
 
     footer.innerHTML = `
-      <button class="modal-btn secondary" onclick="Notifications.closeModal()">稍后</button>
-      <button class="modal-btn primary" onclick="Notifications.saveMorningTasks()">添加任务</button>
+      <button class="modal-btn secondary" onclick="Notifications.closeModal()">${I18n.t('notif.later')}</button>
+      <button class="modal-btn primary" onclick="Notifications.saveMorningTasks()">${I18n.t('notif.add_tasks')}</button>
     `;
 
     overlay.style.display = 'flex';
@@ -166,13 +166,13 @@ const Notifications = (() => {
 
     if (count > 0) {
       Tasks.renderTasks();
-      showToast(`✅ 已添加 ${count} 个任务，加油！`);
+      showToast(I18n.t('notif.tasks_added', count));
     }
   }
 
   // 晚间回顾弹窗
   async function showEveningReview() {
-    sendBrowserNotification('是时候回顾一下今天的成果了 🌙', '晚间回顾');
+    sendBrowserNotification(I18n.t('notif.evening_body'), I18n.t('notif.evening_title'));
 
     const today = DB.getToday();
     const tasks = await DB.getTasksByDate(today);
@@ -187,7 +187,7 @@ const Notifications = (() => {
     const body = document.getElementById('modal-body');
     const footer = document.getElementById('modal-footer');
 
-    title.textContent = '🌙 今日回顾';
+    title.textContent = I18n.t('notif.evening_modal_title');
 
     let taskListHtml = '';
     if (tasks.length > 0) {
@@ -206,20 +206,20 @@ const Notifications = (() => {
 
     body.innerHTML = `
       <div style="text-align:center; margin-bottom:16px;">
-        <p style="color:var(--text-secondary);">今天你专注了</p>
-        <p style="font-size:2rem; font-weight:700; color:var(--accent);">${totalMinutes} <span style="font-size:1rem;">分钟</span></p>
-        <p style="color:var(--text-secondary); font-size:0.85rem;">完成 ${completedCount}/${totalCount} 个任务</p>
+        <p style="color:var(--text-secondary);">${I18n.t('notif.today_focused')}</p>
+        <p style="font-size:2rem; font-weight:700; color:var(--accent);">${totalMinutes} <span style="font-size:1rem;">${I18n.t('notif.minutes_unit')}</span></p>
+        <p style="color:var(--text-secondary); font-size:0.85rem;">${I18n.t('notif.tasks_progress', completedCount, totalCount)}</p>
       </div>
       ${tasks.length > 0 ? `
         <p style="color:var(--text-secondary); margin-bottom:8px; font-size:0.9rem;">
-          勾选今天完成的任务：
+          ${I18n.t('notif.check_done')}
         </p>
         ${taskListHtml}
-      ` : '<p style="color:var(--text-muted); text-align:center;">今天没有设定任务</p>'}
+      ` : `<p style="color:var(--text-muted); text-align:center;">${I18n.t('notif.no_tasks_today')}</p>`}
     `;
 
     footer.innerHTML = `
-      <button class="modal-btn primary" onclick="Notifications.closeModal()">好的，晚安 🌙</button>
+      <button class="modal-btn primary" onclick="Notifications.closeModal()">${I18n.t('notif.goodnight')}</button>
     `;
 
     overlay.style.display = 'flex';

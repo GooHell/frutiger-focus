@@ -82,10 +82,10 @@ const Tasks = (() => {
       await DB.addTask(task);
       closeAddSheet();
       renderTasks();
-      showToast('✅ 任务已添加');
+      showToast(I18n.t('toast.task_added'));
     } catch (e) {
       console.error('添加任务失败:', e);
-      showToast('❌ 添加失败', 'error');
+      showToast(I18n.t('toast.task_add_failed'), 'error');
     }
   }
 
@@ -99,7 +99,7 @@ const Tasks = (() => {
       renderTasks();
 
       if (task.completed) {
-        showToast('🎉 任务完成！');
+        showToast(I18n.t('toast.task_done'));
         document.dispatchEvent(new CustomEvent('taskCompleted', { detail: task }));
       }
     } catch (e) {
@@ -111,7 +111,7 @@ const Tasks = (() => {
     try {
       await DB.deleteTask(id);
       renderTasks();
-      showToast('🗑️ 任务已删除');
+      showToast(I18n.t('toast.task_deleted'));
     } catch (e) {
       console.error('删除任务失败:', e);
     }
@@ -123,7 +123,7 @@ const Tasks = (() => {
       if (!task || task.completed) return;
       Timer.setCurrentTask(task.id, task.name);
       document.querySelector('[data-page="timer"]').click();
-      showToast(`🎯 开始专注：${task.name}`);
+      showToast(I18n.t('toast.focus_on', task.name));
     } catch (e) {
       console.error('关联任务失败:', e);
     }
@@ -169,7 +169,7 @@ const Tasks = (() => {
         if (pastActive.length > 0) {
           const divider = document.createElement('li');
           divider.className = 'task-date-divider';
-          divider.innerHTML = `<span>📅 过往未完成</span>`;
+          divider.innerHTML = `<span>${I18n.t('tasks.past_incomplete')}</span>`;
           els.listActive.appendChild(divider);
 
           pastActive.forEach(task => {
@@ -201,7 +201,7 @@ const Tasks = (() => {
     li.innerHTML = `
       <button class="task-checkbox${task.completed ? ' checked' : ''}"
               onclick="Tasks.toggleTask('${task.id}')"
-              title="${task.completed ? '标记未完成' : '标记完成'}">
+              title="${task.completed ? I18n.t('tasks.mark_undone') : I18n.t('tasks.mark_done')}">
         ${task.completed ? '✓' : ''}
       </button>
       <div class="task-info">
@@ -212,11 +212,11 @@ const Tasks = (() => {
         ${!task.completed ? `
           <button class="task-action-btn focus-btn"
                   onclick="Tasks.focusOnTask('${task.id}')"
-                  title="专注此任务">🎯</button>
+                  title="${I18n.t('tasks.focus_on')}">🎯</button>
         ` : ''}
         <button class="task-action-btn"
                 onclick="Tasks.deleteTask('${task.id}')"
-                title="删除任务">🗑️</button>
+                title="${I18n.t('tasks.delete')}">🗑️</button>
       </div>
     `;
     return li;
@@ -228,8 +228,8 @@ const Tasks = (() => {
     const day = d.getDate();
     const now = new Date();
     const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
-    if (diff === 1) return '昨天';
-    if (diff === 2) return '前天';
+    if (diff === 1) return I18n.t('tasks.yesterday');
+    if (diff === 2) return I18n.t('tasks.day_before');
     return `${month}/${day}`;
   }
 

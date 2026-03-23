@@ -21,6 +21,9 @@ const App = (() => {
 
   async function init() {
     try {
+      // i18n 先于其他模块初始化
+      I18n.init();
+
       await DB.init();
       const savedSettings = await loadSettings();
 
@@ -36,6 +39,7 @@ const App = (() => {
       setupSettingsListeners();
       setupDataManagement();
       setupPanelToggles();
+      setupLanguageSwitcher();
       Notifications.requestPermission();
       registerServiceWorker();
       setupBeforeUnload();
@@ -47,15 +51,21 @@ const App = (() => {
         showToast(e.detail.message, e.detail.type);
       });
 
+      // 语言变更时刷新动态内容
+      document.addEventListener('langChanged', () => {
+        Tasks.renderTasks();
+        Stats.refresh();
+      });
+
       // 首次使用引导
       if (!localStorage.getItem('ff_onboarded')) {
         showOnboarding();
       }
 
-      console.log('✅ Frutiger Focus v1.3 初始化完成');
+      console.log(I18n.t('toast.init_ok'));
     } catch (e) {
       console.error('❌ 初始化失败:', e);
-      showToast('应用初始化失败', 'error');
+      showToast(I18n.t('toast.app_init_fail'), 'error');
     }
   }
 
@@ -136,27 +146,27 @@ const App = (() => {
     document.getElementById('setting-notifications').addEventListener('change', (e) => {
       Notifications.updateSettings({ enabled: e.target.checked });
       saveAllSettings();
-      showToast(e.target.checked ? '🔔 通知已开启' : '🔕 通知已关闭');
+      showToast(e.target.checked ? I18n.t('toast.notifications_on') : I18n.t('toast.notifications_off'));
       if (e.target.checked) Notifications.requestPermission();
     });
 
     document.getElementById('setting-morning-time').addEventListener('change', (e) => {
       Notifications.updateSettings({ morningTime: e.target.value });
       saveAllSettings();
-      showToast(`⏰ 早晨提醒设为 ${e.target.value}`);
+      showToast(I18n.t('toast.morning_set', e.target.value));
     });
 
     document.getElementById('setting-evening-time').addEventListener('change', (e) => {
       Notifications.updateSettings({ eveningTime: e.target.value });
       saveAllSettings();
-      showToast(`🌙 晚间回顾设为 ${e.target.value}`);
+      showToast(I18n.t('toast.evening_set', e.target.value));
     });
 
     document.getElementById('setting-sound').addEventListener('change', () => saveAllSettings());
 
     // 恢复默认设置
     document.getElementById('btn-reset-settings').addEventListener('click', async () => {
-      if (!confirm('确定恢复所有设置为默认值吗？')) return;
+      if (!confirm(I18n.t('toast.reset_confirm'))) return;
       document.getElementById('setting-focus').value = 25;
       document.getElementById('setting-rest').value = 5;
       document.getElementById('setting-sound').checked = true;
@@ -166,7 +176,7 @@ const App = (() => {
       saveTimerSettings();
       Notifications.updateSettings({ enabled: true, morningTime: '08:00', eveningTime: '21:00' });
       await saveAllSettings();
-      showToast('↺ 已恢复默认设置');
+      showToast(I18n.t('toast.reset_settings'));
     });
   }
 
@@ -178,7 +188,7 @@ const App = (() => {
     };
     Timer.updateSettings(s);
     saveAllSettings();
-    showToast('⚙️ 设置已保存');
+    showToast(I18n.t('toast.settings_saved'));
   }
 
   async function saveAllSettings() {
@@ -222,6 +232,75 @@ const App = (() => {
   }
 
   function setupDataManagement() {
+    // ===== 压缩文本导出 =====
+    document.getElementById('btn-export-text').addEventListener('click', async () => {
+      try {
+        const data = await DB.exportData();
+        const json = JSON.stringify(data);
+        const compressed = btoa(unescape(encodeURIComponent(json)));
+        const wrapped = `FF1:${compressed}`; // FF1 = Frutiger Focus v1 格式标识
+        const textarea = document.getElementById('export-text-output');
+        textarea.value = wrapped;
+        document.getElementById('export-text-area').style.display = '';
+        // 自动复制到剪贴板
+        try {
+          await navigator.clipboard.writeText(wrapped);
+          showToast(I18n.t('toast.exported_copied'));
+        } catch (clipErr) {
+          showToast(I18n.t('toast.exported_manual'));
+        }
+      } catch (e) { showToast(I18n.t('toast.export_failed'), 'error'); }
+    });
+
+    document.getElementById('btn-copy-export')?.addEventListener('click', async () => {
+      const text = document.getElementById('export-text-output').value;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(I18n.t('toast.copied'));
+      } catch (e) {
+        document.getElementById('export-text-output').select();
+        document.execCommand('copy');
+        showToast(I18n.t('toast.copied_short'));
+      }
+    });
+
+    // ===== 压缩文本导入 =====
+    document.getElementById('btn-show-import').addEventListener('click', () => {
+      document.getElementById('import-text-area').style.display = '';
+      document.getElementById('import-text-input').focus();
+    });
+
+    async function importFromText(replace) {
+      const raw = document.getElementById('import-text-input').value.trim();
+      if (!raw) { showToast(I18n.t('toast.paste_data'), 'error'); return; }
+      try {
+        let json;
+        if (raw.startsWith('FF1:')) {
+          // 压缩文本格式
+          const b64 = raw.slice(4);
+          json = decodeURIComponent(escape(atob(b64)));
+        } else if (raw.startsWith('{')) {
+          // 直接粘贴的 JSON
+          json = raw;
+        } else {
+          showToast(I18n.t('toast.unrecognized'), 'error'); return;
+        }
+        const data = JSON.parse(json);
+        if (replace) await DB.clearAllData();
+        await DB.importData(data);
+        Tasks.renderTasks();
+        Stats.refresh();
+        document.getElementById('import-text-input').value = '';
+        document.getElementById('import-text-area').style.display = 'none';
+        showToast(replace ? I18n.t('toast.import_replaced') : I18n.t('toast.import_merged'));
+      } catch (err) { showToast(I18n.t('toast.import_failed'), 'error'); }
+    }
+
+    document.getElementById('btn-import-replace').addEventListener('click', () => importFromText(true));
+    document.getElementById('btn-import-merge').addEventListener('click', () => importFromText(false));
+
+    // ===== 文件导入导出（备选） =====
     document.getElementById('btn-export').addEventListener('click', async () => {
       try {
         const data = await DB.exportData();
@@ -229,11 +308,11 @@ const App = (() => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `focusmate_backup_${DB.getToday()}.json`;
+        a.download = `frutiger_focus_backup_${DB.getToday()}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        showToast('📤 数据已导出');
-      } catch (e) { showToast('❌ 导出失败', 'error'); }
+        showToast(I18n.t('toast.json_exported'));
+      } catch (e) { showToast(I18n.t('toast.export_failed'), 'error'); }
     });
 
     document.getElementById('btn-import').addEventListener('click', () => {
@@ -245,32 +324,184 @@ const App = (() => {
       if (!file) return;
       try {
         const data = JSON.parse(await file.text());
-        const strategy = confirm(
-          '请选择导入方式：\n\n' +
-          '【确定】= 替换（清除现有数据后导入）\n' +
-          '【取消】= 合并（保留现有数据，追加导入）'
-        );
-        if (strategy) {
-          // 替换模式：先清除再导入
-          await DB.clearAllData();
-        }
+        const strategy = confirm(I18n.t('toast.import_strategy'));
+        if (strategy) await DB.clearAllData();
         await DB.importData(data);
         Tasks.renderTasks();
         Stats.refresh();
-        showToast(strategy ? '📥 数据已替换导入' : '📥 数据已合并导入');
-      } catch (err) { showToast('❌ 导入失败', 'error'); }
+        showToast(strategy ? I18n.t('toast.import_replaced') : I18n.t('toast.import_merged'));
+      } catch (err) { showToast(I18n.t('toast.import_failed'), 'error'); }
       e.target.value = '';
     });
 
+    // ===== 清除数据 =====
     document.getElementById('btn-clear-data').addEventListener('click', async () => {
-      if (confirm('确定要清除所有数据吗？此操作不可撤销！')) {
+      if (confirm(I18n.t('toast.clear_confirm'))) {
         try {
           await DB.clearAllData();
           Tasks.renderTasks();
           Stats.refresh();
-          showToast('🗑️ 所有数据已清除');
-        } catch (e) { showToast('❌ 清除失败', 'error'); }
+          showToast(I18n.t('toast.data_cleared'));
+        } catch (e) { showToast(I18n.t('toast.clear_failed'), 'error'); }
       }
+    });
+
+    // ===== GitHub Gist 云同步 =====
+    setupGistSync();
+  }
+
+  // ===== GitHub Gist 同步模块 =====
+
+  function setupGistSync() {
+    const GIST_FILENAME = 'frutiger-focus-sync.json';
+    const tokenInput = document.getElementById('setting-gist-token');
+    const statusEl = document.getElementById('sync-status');
+    const iconEl = document.getElementById('sync-icon');
+    const msgEl = document.getElementById('sync-message');
+
+    // 恢复已保存的 Token
+    const savedToken = localStorage.getItem('ff_gist_token');
+    if (savedToken) tokenInput.value = savedToken;
+
+    // Token 显示/隐藏切换
+    document.getElementById('btn-toggle-token')?.addEventListener('click', () => {
+      tokenInput.type = tokenInput.type === 'password' ? 'text' : 'password';
+    });
+
+    // 保存 Token（输入时自动保存）
+    tokenInput.addEventListener('change', () => {
+      localStorage.setItem('ff_gist_token', tokenInput.value.trim());
+    });
+
+    function showSyncStatus(icon, message) {
+      statusEl.style.display = '';
+      iconEl.textContent = icon;
+      msgEl.textContent = message;
+    }
+
+    function hideSyncStatus() {
+      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    }
+
+    function getToken() {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        showToast(I18n.t('toast.no_token'), 'error');
+        return null;
+      }
+      localStorage.setItem('ff_gist_token', token);
+      return token;
+    }
+
+    // 查找已存在的 Gist
+    async function findGist(token) {
+      const res = await fetch('https://api.github.com/gists', {
+        headers: { 'Authorization': `token ${token}` }
+      });
+      if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+      const gists = await res.json();
+      return gists.find(g => g.files && g.files[GIST_FILENAME]);
+    }
+
+    // 创建新 Gist
+    async function createGist(token, data) {
+      const res = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          description: 'Frutiger Focus - Data Sync',
+          public: false,
+          files: { [GIST_FILENAME]: { content: JSON.stringify(data) } }
+        })
+      });
+      if (!res.ok) throw new Error(`Create Gist failed: ${res.status}`);
+      return await res.json();
+    }
+
+    // 更新 Gist
+    async function updateGist(token, gistId, data) {
+      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: { [GIST_FILENAME]: { content: JSON.stringify(data) } }
+        })
+      });
+      if (!res.ok) throw new Error(`Update Gist failed: ${res.status}`);
+      return await res.json();
+    }
+
+    // 读取 Gist
+    async function readGist(token, gistId) {
+      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: { 'Authorization': `token ${token}` }
+      });
+      if (!res.ok) throw new Error(`Read Gist failed: ${res.status}`);
+      const gist = await res.json();
+      const content = gist.files[GIST_FILENAME]?.content;
+      if (!content) throw new Error('No data found in Gist');
+      return JSON.parse(content);
+    }
+
+    // 推送
+    document.getElementById('btn-sync-push')?.addEventListener('click', async () => {
+      const token = getToken();
+      if (!token) return;
+      try {
+        showSyncStatus('⏳', I18n.t('toast.pushing'));
+        const data = await DB.exportData();
+        data.syncTime = new Date().toISOString();
+
+        const existing = await findGist(token);
+        if (existing) {
+          await updateGist(token, existing.id, data);
+        } else {
+          await createGist(token, data);
+        }
+        showSyncStatus('✅', `${I18n.t('toast.push_ok')} · ${new Date().toLocaleTimeString()}`);
+        showToast(I18n.t('toast.push_cloud_ok'));
+      } catch (e) {
+        showSyncStatus('❌', `${I18n.t('toast.push_fail')}: ${e.message}`);
+        showToast('❌ ' + I18n.t('toast.push_fail') + ': ' + e.message, 'error');
+      }
+      hideSyncStatus();
+    });
+
+    // 拉取
+    document.getElementById('btn-sync-pull')?.addEventListener('click', async () => {
+      const token = getToken();
+      if (!token) return;
+      try {
+        showSyncStatus('⏳', I18n.t('toast.pulling'));
+        const existing = await findGist(token);
+        if (!existing) {
+          showSyncStatus('⚠️', I18n.t('toast.no_cloud_data'));
+          showToast(I18n.t('toast.pull_no_data'), 'error');
+          hideSyncStatus();
+          return;
+        }
+        const data = await readGist(token, existing.id);
+        if (confirm(I18n.t('toast.pull_confirm'))) {
+          await DB.clearAllData();
+          await DB.importData(data);
+          Tasks.renderTasks();
+          Stats.refresh();
+          showSyncStatus('✅', `${I18n.t('toast.pull_ok')} · ${new Date().toLocaleTimeString()}`);
+          showToast(I18n.t('toast.pull_cloud_ok'));
+        } else {
+          showSyncStatus('ℹ️', I18n.t('toast.pull_cancelled'));
+        }
+      } catch (e) {
+        showSyncStatus('❌', `${I18n.t('toast.pull_fail')}: ${e.message}`);
+        showToast('❌ ' + I18n.t('toast.pull_fail') + ': ' + e.message, 'error');
+      }
+      hideSyncStatus();
     });
   }
 
@@ -291,7 +522,7 @@ const App = (() => {
         case 'Escape':
           if (timerState.status !== 'idle') {
             Timer.resetTimer();
-            showToast('⏹ 已重置');
+            showToast(I18n.t('toast.timer_reset'));
           }
           break;
         case 'Digit1': navigateTo('timer'); break;
@@ -308,7 +539,7 @@ const App = (() => {
       const timerState = Timer.getState();
       if (timerState.status === 'running' || timerState.status === 'paused') {
         e.preventDefault();
-        e.returnValue = '计时器正在运行中，确定要离开吗？';
+        e.returnValue = I18n.t('beforeunload');
         return e.returnValue;
       }
     });
@@ -322,6 +553,16 @@ const App = (() => {
     }
   }
 
+  // 语言切换器
+  function setupLanguageSwitcher() {
+    const select = document.getElementById('setting-language');
+    if (!select) return;
+    select.value = I18n.getLang();
+    select.addEventListener('change', () => {
+      I18n.setLang(select.value);
+    });
+  }
+
   // 首次使用引导
   function showOnboarding() {
     const overlay = document.getElementById('modal-overlay');
@@ -329,20 +570,20 @@ const App = (() => {
     const body = document.getElementById('modal-body');
     const footer = document.getElementById('modal-footer');
 
-    title.textContent = '🎯 欢迎使用 Frutiger Focus';
+    title.textContent = I18n.t('onboard.title');
     body.innerHTML = `
       <div style="text-align:center; line-height:1.8; color:var(--text-secondary);">
         <p style="font-size:1.1rem; color:var(--text-primary); margin-bottom:12px;">
-          一个极简、轻量的专注工具
+          ${I18n.t('onboard.subtitle')}
         </p>
         <div style="text-align:left; max-width:280px; margin:0 auto; font-size:0.9rem;">
-          <p>🍅 <strong>番茄钟</strong> — 专注→休息→下一轮</p>
-          <p>📋 <strong>任务</strong> — 管理待办，关联专注</p>
-          <p>🎵 <strong>环境音</strong> — 多种场景音可叠加</p>
-          <p>📊 <strong>统计</strong> — 记录每日专注数据</p>
+          <p>${I18n.t('onboard.feature_timer')}</p>
+          <p>${I18n.t('onboard.feature_tasks')}</p>
+          <p>${I18n.t('onboard.feature_ambient')}</p>
+          <p>${I18n.t('onboard.feature_stats')}</p>
         </div>
         <p style="margin-top:16px; font-size:0.82rem; color:var(--text-muted);">
-          快捷键：空格 开始/暂停 · Esc 重置 · 1/2/3 切换页面
+          ${I18n.t('onboard.shortcuts')}
         </p>
       </div>
     `;
@@ -350,7 +591,7 @@ const App = (() => {
       <button class="modal-btn primary" onclick="
         localStorage.setItem('ff_onboarded', '1');
         document.getElementById('modal-overlay').style.display='none';
-      ">开始使用 →</button>
+      ">${I18n.t('onboard.start')}</button>
     `;
     overlay.style.display = 'flex';
   }
