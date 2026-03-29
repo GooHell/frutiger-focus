@@ -1,5 +1,5 @@
 /**
- * Frutiger Focus v1.3 - 国际化模块 (i18n)
+ * Frutiger Focus v1.3.5 - 国际化模块 (i18n)
  * 支持中文 / English 双语切换
  * 架构：data-i18n 属性 + t() 函数
  */
@@ -17,7 +17,6 @@ const I18n = (() => {
 
       // -- 底部导航 --
       'nav.focus': '专注',
-      'nav.tasks': '任务',
       'nav.stats': '统计',
       'nav.settings': '设置',
       'nav.theme': '切换主题',
@@ -38,10 +37,9 @@ const I18n = (() => {
       'timer.start_rest': '开始休息',
       'timer.start_next': '开始下一轮',
       'timer.skip_rest': '跳过休息 →',
-      'timer.today_focus': '今日专注',
 
       // -- 专注页：模式 --
-      'mode.pomodoro': '🍅 番茄钟',
+      'mode.pomodoro': '⏱️ 专注计时',
       'mode.custom': '⏱ 自定义',
       'mode.minutes_suffix': '分钟',
 
@@ -82,7 +80,7 @@ const I18n = (() => {
       'tasks.delete': '删除任务',
 
       // -- 统计页：指标 --
-      'stats.total_pomodoros': '总番茄',
+      'stats.total_pomodoros': '总专注',
       'stats.total_time': '总时长',
       'stats.streak_days': '连续天数',
       'stats.daily_avg': '日均时长',
@@ -101,7 +99,7 @@ const I18n = (() => {
       'heatmap.weekday_names': ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
       'heatmap.day_detail': '{month}月{day}日 {weekday}',
       'heatmap.no_record': '这一天没有专注记录',
-      'heatmap.pomodoro_count': '🍅 番茄 {0}',
+      'heatmap.pomodoro_count': '� 专注 {0}',
       'heatmap.incomplete_count': '(+{0}未完成)',
       'heatmap.duration': '⏱ 时长 {0} 分钟',
 
@@ -125,8 +123,8 @@ const I18n = (() => {
       'hours.no_data': '暂无足够数据',
       'hours.tooltip': '{0} — {1} 分钟',
 
-      // -- 设置页：番茄钟 --
-      'settings.pomodoro': '🍅 番茄钟',
+      // -- 设置页：专注计时 --
+      'settings.pomodoro': '⏱️ 专注计时',
       'settings.focus_duration': '专注时长',
       'settings.rest_duration': '休息时长',
       'settings.end_sound': '计时结束提示音',
@@ -176,7 +174,7 @@ const I18n = (() => {
       'settings.language': '🌐 语言',
 
       // -- 设置页：版本信息 --
-      'settings.version': 'Frutiger Focus v1.3',
+      'settings.version': 'Frutiger Focus v1.3.5',
       'settings.slogan': 'That future once promised · PWA',
 
       // -- Toast 消息 --
@@ -231,7 +229,7 @@ const I18n = (() => {
       'toast.skip_too_short': '⏭ 已跳过（不足1分钟，不记录）',
       'toast.timer_reset': '⏹ 已重置',
       'toast.app_init_fail': '应用初始化失败',
-      'toast.init_ok': '✅ Frutiger Focus v1.3 初始化完成',
+      'toast.init_ok': '✅ Frutiger Focus v1.3.5 初始化完成',
 
       // -- Sync 状态 --
       'sync.syncing': '同步中...',
@@ -239,7 +237,7 @@ const I18n = (() => {
       // -- 引导弹窗 --
       'onboard.title': '🎯 欢迎使用 Frutiger Focus',
       'onboard.subtitle': '一个极简、轻量的专注工具',
-      'onboard.feature_timer': '🍅 <strong>番茄钟</strong> — 专注→休息→下一轮',
+      'onboard.feature_timer': '⏱️ <strong>专注计时</strong> — 专注→休息→下一轮',
       'onboard.feature_tasks': '📋 <strong>任务</strong> — 管理待办，关联专注',
       'onboard.feature_ambient': '🎵 <strong>环境音</strong> — 多种场景音可叠加',
       'onboard.feature_stats': '📊 <strong>统计</strong> — 记录每日专注数据',
@@ -276,7 +274,6 @@ const I18n = (() => {
 
       // -- Bottom Nav --
       'nav.focus': 'Focus',
-      'nav.tasks': 'Tasks',
       'nav.stats': 'Stats',
       'nav.settings': 'Settings',
       'nav.theme': 'Toggle Theme',
@@ -297,10 +294,9 @@ const I18n = (() => {
       'timer.start_rest': 'Start Rest',
       'timer.start_next': 'Start Next Round',
       'timer.skip_rest': 'Skip Rest →',
-      'timer.today_focus': 'Today\'s Focus',
 
       // -- Focus Page: Mode --
-      'mode.pomodoro': '🍅 Pomodoro',
+      'mode.pomodoro': '⏱️ Focus Timer',
       'mode.custom': '⏱ Custom',
       'mode.minutes_suffix': 'min',
 
@@ -341,7 +337,7 @@ const I18n = (() => {
       'tasks.delete': 'Delete task',
 
       // -- Stats Page: Metrics --
-      'stats.total_pomodoros': 'Total',
+      'stats.total_pomodoros': 'Sessions',
       'stats.total_time': 'Total Time',
       'stats.streak_days': 'Streak',
       'stats.daily_avg': 'Daily Avg',
@@ -360,7 +356,7 @@ const I18n = (() => {
       'heatmap.weekday_names': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       'heatmap.day_detail': '{weekday}, {month}/{day}',
       'heatmap.no_record': 'No focus records on this day',
-      'heatmap.pomodoro_count': '🍅 Pomodoros: {0}',
+      'heatmap.pomodoro_count': '� Sessions: {0}',
       'heatmap.incomplete_count': '(+{0} incomplete)',
       'heatmap.duration': '⏱ Duration: {0} min',
 
@@ -384,8 +380,8 @@ const I18n = (() => {
       'hours.no_data': 'Not enough data yet',
       'hours.tooltip': '{0} — {1} min',
 
-      // -- Settings: Pomodoro --
-      'settings.pomodoro': '🍅 Pomodoro',
+      // -- Settings: Focus Timer --
+      'settings.pomodoro': '⏱️ Focus Timer',
       'settings.focus_duration': 'Focus Duration',
       'settings.rest_duration': 'Rest Duration',
       'settings.end_sound': 'Timer End Sound',
@@ -435,7 +431,7 @@ const I18n = (() => {
       'settings.language': '🌐 Language',
 
       // -- Settings: Version --
-      'settings.version': 'Frutiger Focus v1.3',
+      'settings.version': 'Frutiger Focus v1.3.5',
       'settings.slogan': 'That future once promised · PWA',
 
       // -- Toast Messages --
@@ -490,7 +486,7 @@ const I18n = (() => {
       'toast.skip_too_short': '⏭ Skipped (< 1 min, not recorded)',
       'toast.timer_reset': '⏹ Reset',
       'toast.app_init_fail': 'App initialization failed',
-      'toast.init_ok': '✅ Frutiger Focus v1.3 initialized',
+      'toast.init_ok': '✅ Frutiger Focus v1.3.5 initialized',
 
       // -- Sync Status --
       'sync.syncing': 'Syncing...',
@@ -498,7 +494,7 @@ const I18n = (() => {
       // -- Onboarding --
       'onboard.title': '🎯 Welcome to Frutiger Focus',
       'onboard.subtitle': 'A minimal, lightweight focus tool',
-      'onboard.feature_timer': '🍅 <strong>Pomodoro</strong> — Focus → Rest → Repeat',
+      'onboard.feature_timer': '⏱️ <strong>Focus Timer</strong> — Focus → Rest → Repeat',
       'onboard.feature_tasks': '📋 <strong>Tasks</strong> — Manage to-dos, link with focus',
       'onboard.feature_ambient': '🎵 <strong>Ambient</strong> — Mix layered soundscapes',
       'onboard.feature_stats': '📊 <strong>Stats</strong> — Track daily focus data',

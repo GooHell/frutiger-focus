@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1a1a2e">
-  <meta name="description" content="Frutiger Focus - Frutiger Aero 风格专注工具，番茄钟、待办事项、环境音、专注统计">
+  <meta name="description" content="Frutiger Focus - Frutiger Aero 风格专注工具，专注计时、待办事项、环境音、专注统计">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
@@ -42,7 +42,7 @@
               </div>
               <div class="stats-bar-divider"></div>
               <div class="stats-bar-item">
-                <span class="stats-bar-icon">🍅</span>
+                <span class="stats-bar-icon">⏱️</span>
                 <span class="stats-bar-value" id="stat-today-sessions">0</span>
                 <span class="stats-bar-unit" data-i18n="focus.sessions">次</span>
               </div>
@@ -75,13 +75,6 @@
                 </div>
               </div>
 
-              <!-- 今日专注计数器 -->
-              <div class="round-counter" id="round-counter">
-                <span class="round-icon">🍅</span>
-                <span class="round-label" data-i18n="timer.today_focus">今日专注</span>
-                <span class="round-count" id="round-count">×0</span>
-              </div>
-
               <!-- 控制按钮区 -->
               <div class="timer-controls">
                 <!-- idle 状态：只显示大开始按钮 -->
@@ -101,17 +94,10 @@
                 </div>
               </div>
 
-              <!-- 当前关联任务 -->
-              <div class="current-task" id="current-task" style="display:none;">
-                <span class="current-task-dot"></span>
-                <span class="current-task-name" id="current-task-name"></span>
-                <button class="current-task-clear" id="clear-current-task" title="取消关联">✕</button>
-              </div>
-
               <!-- 模式选择 & 自定义时长 -->
               <div class="mode-area">
                 <div class="mode-tabs">
-                  <button class="mode-tab active" data-mode="pomodoro" data-i18n="mode.pomodoro">🍅 番茄钟</button>
+                  <button class="mode-tab active" data-mode="pomodoro" data-i18n="mode.pomodoro">⏱️ 专注计时</button>
                   <button class="mode-tab" data-mode="custom" data-i18n="mode.custom">⏱ 自定义</button>
                 </div>
                 <div class="custom-input-area" id="custom-input-area" style="display:none;">
@@ -202,70 +188,66 @@
                 </div>
               </div>
             </div>
+
+            <!-- 任务面板（嵌入专注页） -->
+            <div class="panel tasks-panel">
+              <button class="panel-toggle" id="tasks-toggle">
+                <span data-i18n="tasks.in_progress">📌 任务</span>
+                <span class="toggle-arrow" id="tasks-arrow">▾</span>
+              </button>
+              <div class="panel-content" id="tasks-content">
+                <!-- PC端添加任务按钮 -->
+                <button class="pc-add-task-btn" id="pc-add-task-btn" style="display:none;" data-i18n="tasks.add_new">
+                  ＋ 新建任务
+                </button>
+
+                <!-- 进行中 -->
+                <div class="task-section">
+                  <div class="task-section-header">
+                    <h3 data-i18n="tasks.in_progress">📌 进行中</h3>
+                    <span class="task-count" id="active-count">0</span>
+                  </div>
+                  <ul class="task-list" id="task-list-active"></ul>
+                  <div class="tasks-empty" id="tasks-empty-active" style="display:none;">
+                    <span class="empty-icon">📝</span>
+                    <p class="empty-hint-mobile" data-i18n="tasks.empty_mobile">暂无任务，点击右下角 + 添加</p>
+                    <p class="empty-hint-pc" data-i18n="tasks.empty_pc">暂无任务，点击上方按钮添加</p>
+                  </div>
+                </div>
+
+                <!-- 已完成（可折叠） -->
+                <div class="task-section">
+                  <button class="task-section-header collapsible" id="done-toggle">
+                    <div>
+                      <h3 data-i18n="tasks.completed">✅ 已完成</h3>
+                      <span class="task-count" id="done-count">0</span>
+                    </div>
+                    <span class="collapse-arrow" id="done-arrow">▾</span>
+                  </button>
+                  <ul class="task-list" id="task-list-done"></ul>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
-      </section>
 
-      <!-- ==================== 任务页 ==================== -->
-      <section id="page-tasks" class="page">
-        <div class="tasks-layout">
+        <!-- FAB 添加按钮（现在在专注页内） -->
+        <button class="fab" id="fab-add-task" title="添加任务">+</button>
 
-          <!-- 任务列表 -->
-          <div class="tasks-body">
-            <!-- PC端添加任务按钮（手机端隐藏） -->
-            <button class="pc-add-task-btn" id="pc-add-task-btn" style="display:none;" data-i18n="tasks.add_new">
-              ＋ 新建任务
-            </button>
-
-            <!-- 进行中 -->
-            <div class="task-section">
-              <div class="task-section-header">
-                <h3 data-i18n="tasks.in_progress">📌 进行中</h3>
-                <span class="task-count" id="active-count">0</span>
-              </div>
-              <ul class="task-list" id="task-list-active">
-                <!-- 动态渲染 -->
-              </ul>
-              <div class="tasks-empty" id="tasks-empty-active" style="display:none;">
-                <span class="empty-icon">📝</span>
-                <p class="empty-hint-mobile" data-i18n="tasks.empty_mobile">暂无任务，点击右下角 + 添加</p>
-                <p class="empty-hint-pc" data-i18n="tasks.empty_pc">暂无任务，点击上方按钮添加</p>
-              </div>
+        <!-- 添加任务浮层 -->
+        <div class="task-add-overlay" id="task-add-overlay" style="display:none;">
+          <div class="task-add-sheet">
+            <div class="task-add-header">
+              <h3 data-i18n="tasks.new_task">新建任务</h3>
+              <button class="task-add-close" id="task-add-close">✕</button>
             </div>
-
-            <!-- 已完成（可折叠） -->
-            <div class="task-section">
-              <button class="task-section-header collapsible" id="done-toggle">
-                <div>
-                  <h3 data-i18n="tasks.completed">✅ 已完成</h3>
-                  <span class="task-count" id="done-count">0</span>
-                </div>
-                <span class="collapse-arrow" id="done-arrow">▾</span>
-              </button>
-              <ul class="task-list" id="task-list-done">
-                <!-- 动态渲染 -->
-              </ul>
+            <input type="text" id="task-input" data-i18n-placeholder="tasks.task_name" placeholder="任务名称" maxlength="100" autofocus>
+            <div class="task-add-actions">
+              <button id="btn-add-task" class="task-add-submit" data-i18n="tasks.add">添加</button>
             </div>
           </div>
-
-          <!-- FAB 添加按钮 -->
-          <button class="fab" id="fab-add-task" title="添加任务">+</button>
-
-          <!-- 添加任务浮层 -->
-          <div class="task-add-overlay" id="task-add-overlay" style="display:none;">
-            <div class="task-add-sheet">
-              <div class="task-add-header">
-                <h3 data-i18n="tasks.new_task">新建任务</h3>
-                <button class="task-add-close" id="task-add-close">✕</button>
-              </div>
-              <input type="text" id="task-input" data-i18n-placeholder="tasks.task_name" placeholder="任务名称" maxlength="100" autofocus>
-              <div class="task-add-actions">
-                <button id="btn-add-task" class="task-add-submit" data-i18n="tasks.add">添加</button>
-              </div>
-            </div>
-          </div>
-
         </div>
       </section>
 
@@ -276,9 +258,9 @@
           <!-- 顶部：累计核心指标（始终可见） -->
           <div class="stats-metrics">
             <div class="metric-card">
-              <span class="metric-icon">🍅</span>
+              <span class="metric-icon">�</span>
               <span class="metric-value" id="metric-total-sessions">0</span>
-              <span class="metric-label" data-i18n="stats.total_pomodoros">总番茄</span>
+              <span class="metric-label" data-i18n="stats.total_pomodoros">总专注</span>
             </div>
             <div class="metric-card">
               <span class="metric-icon">⏱</span>
@@ -392,7 +374,7 @@
         <div class="settings-layout">
 
           <div class="settings-group">
-            <h3 data-i18n="settings.pomodoro">🍅 番茄钟</h3>
+            <h3 data-i18n="settings.pomodoro">⏱️ 专注计时</h3>
             <div class="setting-item">
               <label data-i18n="settings.focus_duration">专注时长</label>
               <div class="setting-value">
@@ -531,7 +513,7 @@
           </div>
 
           <div class="app-info">
-            <p data-i18n="settings.version">Frutiger Focus v1.3</p>
+            <p data-i18n="settings.version">Frutiger Focus v1.3.5</p>
             <p data-i18n="settings.slogan">That future once promised · PWA</p>
           </div>
         </div>
@@ -543,10 +525,6 @@
       <button class="nav-item active" data-page="timer">
         <span class="nav-icon">⏱️</span>
         <span class="nav-label" data-i18n="nav.focus">专注</span>
-      </button>
-      <button class="nav-item" data-page="tasks">
-        <span class="nav-icon">📋</span>
-        <span class="nav-label" data-i18n="nav.tasks">任务</span>
       </button>
       <button class="nav-item" data-page="stats">
         <span class="nav-icon">📊</span>

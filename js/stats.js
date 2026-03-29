@@ -1,5 +1,5 @@
 /**
- * Frutiger Focus v1.3 - 统计模块
+ * Frutiger Focus v1.3.5 - 统计模块
  * 热力图 · 累计指标 · Chart.js趋势图(Aero风格) · 时段分布 · 连续打卡
  */
 
@@ -175,7 +175,6 @@ const Stats = (() => {
           : completeSessions;
       }
       if (els.todayTasks) els.todayTasks.textContent = completedTasks;
-      Timer.updateRoundCounter();
     } catch (e) {
       console.error('刷新今日统计失败:', e);
     }
@@ -187,7 +186,7 @@ const Stats = (() => {
       const allSessions = await DB.getAllSessions();
       if (!els.metricSessions) return;
 
-      // 总番茄数（只计完整的）
+      // 总专注次数（只计完整的）
       const completeSessions = allSessions.filter(s => !s.incomplete);
       els.metricSessions.textContent = completeSessions.length;
 

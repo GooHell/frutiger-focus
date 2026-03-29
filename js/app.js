@@ -1,5 +1,5 @@
 /**
- * Frutiger Focus v1.2 - 主应用模块
+ * Frutiger Focus v1.3.5 - 主应用模块
  * 初始化、导航、设置、全局功能
  */
 
@@ -76,11 +76,14 @@ const App = (() => {
   }
 
   function navigateTo(page) {
+    // tasks 页已合并到 timer，兼容旧调用
+    if (page === 'tasks') page = 'timer';
     currentPage = page;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(`page-${page}`).classList.add('active');
     document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    const navBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (navBtn) navBtn.classList.add('active');
 
     if (page === 'timer') Stats.refresh();
     if (page === 'stats') Stats.refresh();
@@ -136,6 +139,20 @@ const App = (() => {
       statsArrow.classList.toggle('collapsed', !statsOpen);
       if (statsOpen) Stats.refresh();
     });
+
+    // 任务面板
+    const tasksToggle = document.getElementById('tasks-toggle');
+    const tasksContent = document.getElementById('tasks-content');
+    const tasksArrow = document.getElementById('tasks-arrow');
+    let tasksOpen = true;
+
+    if (tasksToggle) {
+      tasksToggle.addEventListener('click', () => {
+        tasksOpen = !tasksOpen;
+        tasksContent.classList.toggle('collapsed', !tasksOpen);
+        tasksArrow.classList.toggle('collapsed', !tasksOpen);
+      });
+    }
   }
 
   function setupSettingsListeners() {
@@ -526,9 +543,8 @@ const App = (() => {
           }
           break;
         case 'Digit1': navigateTo('timer'); break;
-        case 'Digit2': navigateTo('tasks'); break;
-        case 'Digit3': navigateTo('stats'); break;
-        case 'Digit4': navigateTo('settings'); break;
+        case 'Digit2': navigateTo('stats'); break;
+        case 'Digit3': navigateTo('settings'); break;
       }
     });
   }

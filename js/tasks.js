@@ -1,5 +1,5 @@
 /**
- * Frutiger Focus v1.2 - 任务模块
+ * Frutiger Focus v1.3.5 - 任务模块
  * FAB添加、分组显示、可折叠已完成区
  */
 
@@ -122,7 +122,7 @@ const Tasks = (() => {
       const task = await DB.getTask(id);
       if (!task || task.completed) return;
       Timer.setCurrentTask(task.id, task.name);
-      document.querySelector('[data-page="timer"]').click();
+      // 任务已在 Timer 页面内，无需跳转，直接关联即可
       showToast(I18n.t('toast.focus_on', task.name));
     } catch (e) {
       console.error('关联任务失败:', e);

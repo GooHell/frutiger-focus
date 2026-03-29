@@ -1,5 +1,5 @@
 /**
- * Frutiger Focus v1.2 - 通知模块
+ * Frutiger Focus v1.3.5 - 通知模块
  * 早晨规划提醒 & 晚间回顾提醒
  */
 

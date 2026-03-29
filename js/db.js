@@ -1,5 +1,5 @@
 /**
- * Frutiger Focus v1.2 - 数据库模块 (IndexedDB)
+ * Frutiger Focus v1.3.5 - 数据库模块 (IndexedDB)
  * 管理所有本地数据的持久化存储
  */
 

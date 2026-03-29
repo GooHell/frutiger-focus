@@ -359,38 +359,6 @@ body::after {
   .timer-time { font-size: 3.5rem; }
 }
 
-/* --- 今日专注计数器 --- */
-.round-counter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 6px 16px;
-  font-size: 0.85rem;
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
-}
-.round-icon { font-size: 1.1rem; }
-.round-label { color: var(--text-secondary); font-weight: 500; letter-spacing: 0.3px; }
-.round-count {
-  font-weight: 700;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 12px var(--accent-glow);
-}
-
-/* 休息阶段计数器变色 */
-.round-counter.rest-phase {
-  border-color: var(--success);
-}
-.round-counter.rest-phase .round-count {
-  color: var(--success);
-  text-shadow: 0 0 12px var(--success-glow);
-}
-
 /* 跳过休息链接 */
 .skip-rest-link {
   display: block;
@@ -404,16 +372,6 @@ body::after {
   letter-spacing: 0.3px;
 }
 .skip-rest-link:hover { color: var(--accent); }
-
-/* 计数器完成动画 */
-@keyframes counterPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-.round-counter.pop-anim .round-count {
-  animation: counterPop 0.4s ease;
-}
 
 /* --- 控制按钮 --- */
 .timer-controls { display: flex; align-items: center; justify-content: center; min-height: 72px; }
@@ -483,26 +441,6 @@ body::after {
   color: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow), inset 0 1px 0 var(--glass-highlight);
 }
-
-/* --- 当前任务 --- */
-.current-task {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--glass-bg); padding: 8px 16px; border-radius: 24px;
-  font-size: 0.85rem; border: 1px solid var(--glass-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
-}
-.current-task-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--success);
-  flex-shrink: 0; animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-}
-.current-task-name { color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
-.current-task-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; padding: 2px 4px; }
-.current-task-clear:hover { color: var(--accent); }
 
 /* --- 模式 & 自定义 --- */
 .mode-area { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
@@ -624,20 +562,22 @@ body::after {
 .chart-total strong { color: var(--accent); }
 
 /* ======================================================
-   任务页
+   任务面板（嵌入专注页侧边栏）
    ====================================================== */
-.tasks-layout {
-  position: relative;
-  min-height: 100%;
-  padding: 16px 20px 80px;
+.tasks-panel .panel-content {
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
+.tasks-panel .panel-content::-webkit-scrollbar { width: 4px; }
+.tasks-panel .panel-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-@media (min-width: 768px) {
-  .tasks-layout {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 24px 32px 80px;
-  }
+.tasks-panel .pc-add-task-btn {
+  max-width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
 }
 
 .task-section { margin-bottom: 16px; }
@@ -1629,7 +1569,6 @@ input[type="time"].setting-input { width: 100px; }
   .controls-active { gap: 28px; }
 
   /* 更大的阶段指示条 */
-  .round-counter { padding: 8px 20px; font-size: 0.9rem; }
 
   /* 更大的模式切换 */
   .mode-tab { padding: 10px 28px; font-size: 0.95rem; }
@@ -1645,13 +1584,7 @@ input[type="time"].setting-input { width: 100px; }
   /* 图表更大 */
   .chart-container canvas { height: 180px !important; }
 
-  /* --- 任务页 PC 布局 --- */
-  .tasks-layout {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 32px 40px 40px;
-  }
-
+  /* --- 任务面板 PC 适配 --- */
   .task-section-header h3 { font-size: 1.05rem; }
   .task-count { font-size: 0.8rem; padding: 3px 10px; }
 
@@ -1797,7 +1730,6 @@ input[type="time"].setting-input { width: 100px; }
   .timer-circle { width: 300px; height: 300px; }
   .timer-time { font-size: 4rem; }
 
-  .tasks-layout { max-width: 900px; padding: 40px 48px 48px; }
   .settings-layout { max-width: 1000px; }
   .stats-layout { max-width: 1000px; }
   .chart-wrap { height: 260px; }
@@ -1810,7 +1742,6 @@ input[type="time"].setting-input { width: 100px; }
   .bottom-nav { width: 260px; min-width: 260px; }
   .focus-layout { padding: 48px 60px; gap: 48px; }
   .focus-sidebar { width: 480px; }
-  .tasks-layout { max-width: 1000px; }
   .settings-layout { max-width: 1100px; }
   .stats-layout { max-width: 1100px; }
   .chart-wrap { height: 280px; }

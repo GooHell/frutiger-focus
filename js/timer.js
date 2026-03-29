@@ -1,12 +1,12 @@
 /**
- * Frutiger Focus v1.2 - 计时器模块
+ * Frutiger Focus v1.3.5 - 计时器模块
  * 独立循环制：专注 → 休息 → 完成(+1) → 下一轮
  */
 
 const Timer = (() => {
   // ===== 状态 =====
   let state = {
-    mode: 'pomodoro',     // pomodoro | custom
+    mode: 'pomodoro',     // pomodoro(专注计时) | custom(自定义)
     phase: 'focus',       // focus | rest
     status: 'idle',       // idle | running | paused
     totalSeconds: 25 * 60,
@@ -32,7 +32,6 @@ const Timer = (() => {
       time: document.getElementById('timer-time'),
       label: document.getElementById('timer-label'),
       progress: document.getElementById('timer-progress'),
-      roundCount: document.getElementById('round-count'),
       controlsIdle: document.getElementById('controls-idle'),
       controlsActive: document.getElementById('controls-active'),
       btnStart: document.getElementById('btn-start'),
@@ -42,8 +41,7 @@ const Timer = (() => {
       pauseIcon: document.getElementById('pause-icon'),
       customArea: document.getElementById('custom-input-area'),
       customMinutes: document.getElementById('custom-minutes'),
-      currentTask: document.getElementById('current-task'),
-      currentTaskName: document.getElementById('current-task-name')
+      modeArea: document.querySelector('.mode-area')
     };
   }
 
@@ -57,7 +55,6 @@ const Timer = (() => {
     if (!restoreTimerState()) {
       resetTimer();
     }
-    updateRoundCounter();
   }
 
   // ===== 持久化 =====
@@ -178,11 +175,6 @@ const Timer = (() => {
       els.customMinutes.value = val;
       settings.customMinutes = val;
       if (state.status === 'idle') resetTimer();
-    });
-
-    // 取消关联任务
-    document.getElementById('clear-current-task').addEventListener('click', () => {
-      setCurrentTask(null, null);
     });
 
     // 页面可见性：校正计时
@@ -333,7 +325,7 @@ const Timer = (() => {
         showToast(I18n.t('toast.focus_complete'));
         enterIdleForNextRound();
       } else {
-        // 番茄钟模式：自动进入休息
+        // 专注计时模式：自动进入休息
         showToast(I18n.t('toast.focus_complete_rest'));
         enterRestPhase();
       }
@@ -342,9 +334,6 @@ const Timer = (() => {
       showToast(I18n.t('toast.rest_complete'));
       enterIdleForNextRound();
     }
-
-    // 更新计数器
-    updateRoundCounter();
 
     // 触发事件
     document.dispatchEvent(new CustomEvent('timerComplete', {
@@ -360,9 +349,6 @@ const Timer = (() => {
     state.totalSeconds = settings.restMinutes * 60;
     state.remainingSeconds = state.totalSeconds;
     state.status = 'idle';
-
-    // 休息阶段视觉区分
-    document.getElementById('round-counter')?.classList.add('rest-phase');
 
     showIdleControls();
     updateDisplay();
@@ -394,7 +380,6 @@ const Timer = (() => {
     state.phase = 'focus';
     state.status = 'idle';
     state.sessionStartTime = null;
-    document.getElementById('round-counter')?.classList.remove('rest-phase');
     // 清理可能残留的跳过按钮
     document.querySelector('.skip-rest-link')?.remove();
 
@@ -437,42 +422,18 @@ const Timer = (() => {
     }
   }
 
-  // ===== 今日计数器 =====
-
-  async function updateRoundCounter() {
-    try {
-      const today = DB.getToday();
-      const sessions = await DB.getSessionsByDate(today);
-      const completedCount = sessions.filter(s => !s.incomplete).length;
-      const incompleteCount = sessions.filter(s => s.incomplete).length;
-
-      let text = `×${completedCount}`;
-      if (incompleteCount > 0) {
-        text += ` (+${incompleteCount}⚠️)`;
-      }
-      if (els.roundCount) {
-        els.roundCount.textContent = text;
-        // 弹跳动画
-        const counter = document.getElementById('round-counter');
-        if (counter) {
-          counter.classList.remove('pop-anim');
-          void counter.offsetWidth; // 强制回流触发动画重播
-          counter.classList.add('pop-anim');
-        }
-      }
-    } catch (e) { /* ignore */ }
-  }
-
   // ===== UI 辅助 =====
 
   function showIdleControls() {
     els.controlsIdle.style.display = 'flex';
     els.controlsActive.style.display = 'none';
+    if (els.modeArea) els.modeArea.style.display = '';
   }
 
   function showActiveControls() {
     els.controlsIdle.style.display = 'none';
     els.controlsActive.style.display = 'flex';
+    if (els.modeArea) els.modeArea.style.display = 'none';
   }
 
   function updateDisplay() {
@@ -508,13 +469,6 @@ const Timer = (() => {
 
   function setCurrentTask(taskId, taskName) {
     state.currentTaskId = taskId;
-    if (taskId && taskName) {
-      els.currentTask.style.display = 'flex';
-      els.currentTaskName.textContent = taskName;
-    } else {
-      els.currentTask.style.display = 'none';
-      els.currentTaskName.textContent = '';
-    }
   }
 
   // ===== 提示音 =====
@@ -561,7 +515,6 @@ const Timer = (() => {
     togglePause,
     resetTimer,
     setCurrentTask,
-    updateSettings: (s) => Object.assign(settings, s),
-    updateRoundCounter
+    updateSettings: (s) => Object.assign(settings, s)
   };
 })();

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frutiger Focus — Lens Demo v3</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ========== Frutiger Aero 背景 ========== */
+  body {
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: rgba(0, 30, 60, 0.8);
+    overflow-x: hidden;
+    background: linear-gradient(170deg, #58b4d8 0%, #8ecae6 18%, #b8dff0 35%, #d4ecf7 50%, #e8f0ec 68%, #f5f0e8 82%, #faf8f4 100%);
+    background-attachment: fixed;
+  }
+
+  /* 光晕层 */
+  .aero-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+  /* 大光晕 — 给背景层次和温暖 */
+  .glow {
+    position: absolute; border-radius: 50%;
+    filter: blur(60px);
+  }
+  .glow-1 { width: 500px; height: 500px; top: -10%; left: -10%; background: rgba(120, 200, 255, 0.25); animation: glowDrift1 20s ease-in-out infinite; }
+  .glow-2 { width: 400px; height: 400px; bottom: 5%; right: -5%; background: rgba(255, 180, 120, 0.15); animation: glowDrift2 25s ease-in-out infinite; }
+  .glow-3 { width: 350px; height: 350px; top: 40%; left: 30%; background: rgba(180, 220, 255, 0.18); animation: glowDrift3 18s ease-in-out infinite; }
+  .glow-4 { width: 250px; height: 250px; top: 10%; right: 20%; background: rgba(255, 220, 180, 0.12); animation: glowDrift2 22s ease-in-out infinite reverse; }
+
+  @keyframes glowDrift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+  @keyframes glowDrift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,-20px)} }
+  @keyframes glowDrift3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(30px,-25px)} 66%{transform:translate(-20px,20px)} }
+
+  /* 气泡 — 更可见 */
+  .bub {
+    position: absolute; border-radius: 50%;
+    background: radial-gradient(ellipse 45% 38% at 32% 28%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.15) 45%, transparent 65%);
+    border: 1.5px solid rgba(255,255,255,0.55);
+    box-shadow: inset 0 -10px 20px rgba(0,80,160,0.05), inset 4px 0 12px rgba(255,255,255,0.15), 0 4px 20px rgba(0,80,160,0.04);
+  }
+  .bub-1{width:220px;height:220px;top:3%;left:-3%;animation:bf1 16s ease-in-out infinite}
+  .bub-2{width:140px;height:140px;top:12%;right:8%;animation:bf2 20s ease-in-out infinite}
+  .bub-3{width:90px;height:90px;bottom:30%;left:10%;animation:bf3 14s ease-in-out infinite}
+  .bub-4{width:60px;height:60px;top:50%;right:18%;animation:bf2 11s ease-in-out infinite reverse}
+  .bub-5{width:160px;height:160px;bottom:5%;right:0%;animation:bf1 18s ease-in-out infinite reverse}
+  .bub-6{width:35px;height:35px;top:38%;left:55%;animation:bf3 9s ease-in-out infinite}
+  .bub-7{width:45px;height:45px;top:65%;left:25%;animation:bf2 13s ease-in-out infinite}
+  .bub-8{width:25px;height:25px;top:22%;left:35%;animation:bf3 8s ease-in-out infinite 2s}
+
+  @keyframes bf1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(25px,-15px) scale(1.04)}66%{transform:translate(-12px,12px) scale(0.97)}}
+  @keyframes bf2{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,-22px) scale(1.03)}}
+  @keyframes bf3{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,-10px)}}
+
+  /* ========== 内容区 ========== */
+  .content {
+    max-width: 400px; margin: 0 auto; padding: 24px 20px 120px;
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
+
+  /* ========== 透镜面板 ========== */
+  .lens {
+    background: rgba(255, 255, 255, 0.13);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    padding: 18px 22px;
+    position: relative; overflow: hidden; width: 100%;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.65),
+      inset 0 -1px 0 rgba(0,40,80,0.03),
+      0 2px 20px rgba(0,60,120,0.04);
+  }
+  /* 顶部渐亮 */
+  .lens::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:45%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+    pointer-events:none;
+  }
+  .lens-title {
+    font-size:0.62rem; font-weight:700; letter-spacing:2.5px;
+    text-transform:uppercase; color:rgba(0,40,80,0.3); margin-bottom:10px;
+    position:relative; z-index:1;
+  }
+
+  /* ========== 计时器区域 ========== */
+  .timer-wrap {
+    position: relative;
+    width: 260px; height: 260px;
+    margin: 12px 0;
+  }
+
+  /* SVG 进度环 */
+  .timer-svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+  .progress-track {
+    fill: none; stroke: rgba(255,255,255,0.25); stroke-width: 3;
+  }
+  .progress-bar {
+    fill: none; stroke: rgba(66,165,245,0.7); stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s linear;
+  }
+  .timer-wrap.paused .progress-bar {
+    stroke: rgba(66,165,245,0.4);
+  }
+  .timer-wrap.idle .progress-bar {
+    stroke-dashoffset: 0 !important; opacity: 0;
+  }
+
+  /* 圆盘 */
+  .timer-disc {
+    position: absolute; inset: 8px;
+    border-radius: 50%; cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+
+    background: rgba(255,255,255,0.13);
+    border: 1.5px solid rgba(255,255,255,0.5);
+    backdrop-filter: blur(1px);
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.55),
+      inset 0 -2px 0 rgba(0,40,80,0.03),
+      0 4px 28px rgba(0,60,120,0.05);
+    transition: all 0.25s;
+    user-select: none;
+  }
+  .timer-disc:hover {
+    background: rgba(255,255,255,0.18);
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.65),
+      inset 0 -2px 0 rgba(0,40,80,0.03),
+      0 6px 36px rgba(0,60,120,0.07);
+  }
+  .timer-disc:active { transform: scale(0.98); }
+
+  /* 弧形顶部高光 */
+  .timer-disc::before {
+    content:''; position:absolute; top:8px; left:22%; right:22%; height:28%;
+    background: radial-gradient(ellipse 100% 100% at 50% 0%, rgba(255,255,255,0.35) 0%, transparent 70%);
+    border-radius:50%; pointer-events:none;
+  }
+  /* 内部折射光带 — 偏右下的微弱彩虹 */
+  .timer-disc::after {
+    content:''; position:absolute; bottom:15%; right:12%; width:50%; height:30%;
+    background: linear-gradient(135deg, 
+      rgba(255,180,180,0.06) 0%, rgba(255,220,140,0.06) 25%, 
+      rgba(140,255,180,0.06) 50%, rgba(140,200,255,0.06) 75%, transparent 100%);
+    border-radius:50%; pointer-events:none; filter:blur(8px);
+  }
+
+  /* 倒计时数字 */
+  .timer-time {
+    font-size:3.6rem; font-weight:200; letter-spacing:-1px;
+    color:rgba(0,30,70,0.7);
+    font-variant-numeric:tabular-nums;
+    cursor:pointer; position:relative; z-index:2; transition:color 0.2s;
+    line-height:1;
+  }
+  .timer-time:hover { color:rgba(30,136,229,0.75); }
+  .timer-time:hover::after {
+    content:''; position:absolute; bottom:2px; left:10%; right:10%; height:1.5px;
+    background:rgba(30,136,229,0.25); border-radius:1px;
+  }
+
+  /* 控制图标 */
+  .timer-icon {
+    font-size:1.6rem; color:rgba(30,136,229,0.55);
+    margin-top:6px; pointer-events:none; transition:all 0.3s;
+    position:relative; z-index:2;
+  }
+
+  /* ========== 卫星小圆 — 在 .timer-wrap 内部, 但弹出到圆盘外面 ========== */
+  .sat {
+    position:absolute; width:50px; height:50px; border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    border:1.5px solid rgba(255,255,255,0.5);
+    backdrop-filter:blur(1px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 14px rgba(0,60,120,0.05);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:1.05rem; color:rgba(0,40,80,0.5);
+    z-index:10;
+    /* 初始：缩在中心 */
+    transform:scale(0); opacity:0;
+    transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s, background 0.2s;
+  }
+  .sat:hover {
+    background:rgba(255,255,255,0.28);
+    color:rgba(0,40,80,0.75);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 4px 18px rgba(0,60,120,0.08);
+  }
+  .sat:active { transform:scale(0.92) !important; }
+
+  /* 弧形高光 */
+  .sat::before {
+    content:''; position:absolute; top:3px; left:18%; right:18%; height:35%;
+    background:radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4) 0%, transparent 70%);
+    border-radius:50%; pointer-events:none;
+  }
+
+  /* B = Skip (右上) */
+  .sat-b { top: 50%; right: 50%; margin-top: -25px; margin-right: -25px; }
+  .sat-b.show { transform: translate(155px, -80px) scale(1); opacity:1; }
+
+  /* A = Reset (右下) */
+  .sat-a { top: 50%; right: 50%; margin-top: -25px; margin-right: -25px; }
+  .sat-a.show { transform: translate(145px, 65px) scale(1); opacity:1; }
+
+  /* Hover 标签 */
+  .sat-tip {
+    position:absolute; font-size:0.58rem; letter-spacing:0.5px;
+    color:rgba(0,40,80,0.35); white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity 0.2s;
+  }
+  .sat:hover .sat-tip { opacity:1; }
+  .sat-b .sat-tip { bottom:100%; margin-bottom:5px; left:50%; transform:translateX(-50%); }
+  .sat-a .sat-tip { top:100%; margin-top:5px; left:50%; transform:translateX(-50%); }
+
+  /* ========== 统计条 ========== */
+  .stats-row { display:flex; gap:10px; width:100%; }
+  .stat-cell {
+    flex:1; text-align:center; padding:12px 8px;
+    background:rgba(255,255,255,0.1);
+    border:1.5px solid rgba(255,255,255,0.45);
+    border-radius:16px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 10px rgba(0,60,120,0.03);
+  }
+  .stat-cell-icon { font-size:1rem; display:block; margin-bottom:3px; }
+  .stat-cell-val { font-size:1.35rem; font-weight:700; color:rgba(0,30,70,0.65); }
+
+  /* ========== 白噪音 Chips ========== */
+  .chips { display:flex; flex-wrap:wrap; gap:8px; position:relative; z-index:1; }
+  .chip {
+    display:inline-flex; align-items:center; gap:4px; padding:7px 14px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.1);
+    border:1.5px solid rgba(255,255,255,0.45);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.45);
+    font-size:0.88rem; color:rgba(0,40,80,0.45);
+    cursor:pointer; transition:all 0.2s; user-select:none;
+  }
+  .chip:hover { background:rgba(255,255,255,0.2); color:rgba(0,40,80,0.65); }
+  .chip.on {
+    background:rgba(66,165,245,0.1);
+    border-color:rgba(66,165,245,0.35);
+    color:rgba(30,136,229,0.8);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 0 14px rgba(66,165,245,0.08);
+  }
+  .chip-lbl { font-size:0.72rem; }
+
+  /* ========== 嵌入任务 ========== */
+  .task-row {
+    display:flex; align-items:center; gap:12px; padding:9px 0;
+    border-bottom:1px solid rgba(255,255,255,0.2); position:relative; z-index:1;
+  }
+  .task-row:last-child { border-bottom:none; }
+  .task-ck {
+    width:20px; height:20px; border-radius:50%; flex-shrink:0;
+    border:1.5px solid rgba(0,80,160,0.2); background:rgba(255,255,255,0.1);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:0.55rem; color:transparent; transition:all 0.2s;
+  }
+  .task-ck:hover { border-color:rgba(66,165,245,0.5); }
+  .task-ck.ok { background:linear-gradient(135deg,#66bb6a,#43a047); border-color:transparent; color:#fff; }
+  .task-tx { flex:1; font-size:0.84rem; color:rgba(0,30,60,0.55); }
+  .task-tx.ok { text-decoration:line-through; color:rgba(0,30,60,0.22); }
+  .task-act { font-size:0.82rem; opacity:0.3; cursor:pointer; transition:opacity 0.2s; }
+  .task-act:hover { opacity:0.7; }
+
+  /* ========== 底部导航 ========== */
+  .nav {
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; justify-content:space-around;
+    padding:10px 0 max(10px, env(safe-area-inset-bottom));
+    background:rgba(255,255,255,0.18);
+    backdrop-filter:blur(1px);
+    border-top:1.5px solid rgba(255,255,255,0.45);
+  }
+  .nav-i {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    font-size:0.58rem; letter-spacing:0.5px; color:rgba(0,40,80,0.32);
+    cursor:pointer; transition:all 0.2s; padding:4px 20px;
+  }
+  .nav-i.on { color:rgba(30,136,229,0.75); }
+  .nav-ic { font-size:1.15rem; }
+
+  /* ========== 状态提示 ========== */
+  .hint {
+    font-size:0.6rem; letter-spacing:1.5px; text-transform:uppercase;
+    color:rgba(0,40,80,0.2); text-align:center; margin-top:-6px;
+  }
+
+  /* ========== Demo 状态切换 ========== */
+  .demo-sw {
+    position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:100;
+    display:flex; background:rgba(255,255,255,0.18);
+    border:1.5px solid rgba(255,255,255,0.45); border-radius:22px; overflow:hidden;
+    backdrop-filter:blur(1px);
+  }
+  .demo-sw button {
+    border:none; background:none; padding:7px 18px; cursor:pointer;
+    font-size:0.72rem; font-weight:600; color:rgba(0,40,80,0.35); transition:all 0.25s;
+  }
+  .demo-sw button.on { background:rgba(255,255,255,0.25); color:rgba(30,136,229,0.8); }
+</style>
+</head>
+<body>
+
+<!-- Frutiger Aero 背景层 -->
+<div class="aero-bg">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+  <div class="glow glow-4"></div>
+  <div class="bub bub-1"></div>
+  <div class="bub bub-2"></div>
+  <div class="bub bub-3"></div>
+  <div class="bub bub-4"></div>
+  <div class="bub bub-5"></div>
+  <div class="bub bub-6"></div>
+  <div class="bub bub-7"></div>
+  <div class="bub bub-8"></div>
+</div>
+
+<!-- Demo 状态切换 -->
+<div class="demo-sw" id="demoSw">
+  <button class="on" data-s="idle">Idle</button>
+  <button data-s="running">Running</button>
+  <button data-s="paused">Paused</button>
+</div>
+
+<div class="content">
+
+  <!-- 统计条 -->
+  <div class="stats-row">
+    <div class="stat-cell"><span class="stat-cell-icon">⏱</span><span class="stat-cell-val">48</span></div>
+    <div class="stat-cell"><span class="stat-cell-icon">🍅</span><span class="stat-cell-val">2</span></div>
+    <div class="stat-cell"><span class="stat-cell-icon">✓</span><span class="stat-cell-val">1</span></div>
+  </div>
+
+  <!-- 计时器 -->
+  <div class="timer-wrap idle" id="timerWrap">
+    <!-- SVG 进度环 -->
+    <svg class="timer-svg" viewBox="0 0 260 260">
+      <circle class="progress-track" cx="130" cy="130" r="126"/>
+      <circle class="progress-bar" id="progressBar" cx="130" cy="130" r="126"
+              stroke-dasharray="791.68" stroke-dashoffset="0"/>
+    </svg>
+
+    <!-- 圆盘 -->
+    <div class="timer-disc" id="disc" onclick="discClick()">
+      <span class="timer-time" id="timeEl" onclick="event.stopPropagation();editTime()">25:00</span>
+      <span class="timer-icon" id="iconEl">▶</span>
+    </div>
+
+    <!-- 卫星 — 在 wrap 内但弹出到 disc 外面 -->
+    <div class="sat sat-b" id="satB" onclick="doSkip()">
+      ⏭ <span class="sat-tip">Skip</span>
+    </div>
+    <div class="sat sat-a" id="satA" onclick="doReset()">
+      ↺ <span class="sat-tip">Reset</span>
+    </div>
+  </div>
+
+  <div class="hint" id="hint">tap to start</div>
+
+  <!-- 白噪音 -->
+  <div class="lens">
+    <div class="lens-title">Ambient</div>
+    <div class="chips">
+      <div class="chip on" onclick="this.classList.toggle('on')">🌀 <span class="chip-lbl">Future</span></div>
+      <div class="chip" onclick="this.classList.toggle('on')">🌧</div>
+      <div class="chip" onclick="this.classList.toggle('on')">🌲</div>
+      <div class="chip" onclick="this.classList.toggle('on')">🌊</div>
+      <div class="chip" onclick="this.classList.toggle('on')">🏞</div>
+      <div class="chip" onclick="this.classList.toggle('on')">🔥</div>
+      <div class="chip" onclick="this.classList.toggle('on')">🍃</div>
+      <div class="chip" onclick="this.classList.toggle('on')">🎹</div>
+    </div>
+  </div>
+
+  <!-- 任务 -->
+  <div class="lens">
+    <div class="lens-title">Today</div>
+    <div class="task-row">
+      <div class="task-ck ok" onclick="this.classList.toggle('ok');this.textContent=this.classList.contains('ok')?'✓':''">✓</div>
+      <span class="task-tx ok">Review design mockups</span>
+    </div>
+    <div class="task-row">
+      <div class="task-ck" onclick="this.classList.toggle('ok');this.textContent=this.classList.contains('ok')?'✓':''"></div>
+      <span class="task-tx">Write i18n docs</span>
+      <span class="task-act">🎯</span>
+    </div>
+    <div class="task-row">
+      <div class="task-ck" onclick="this.classList.toggle('ok');this.textContent=this.classList.contains('ok')?'✓':''"></div>
+      <span class="task-tx">Deploy to production</span>
+      <span class="task-act">🎯</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- 导航 -->
+<div class="nav">
+  <div class="nav-i on"><span class="nav-ic">◉</span>Focus</div>
+  <div class="nav-i"><span class="nav-ic">◔</span>Stats</div>
+  <div class="nav-i"><span class="nav-ic">⚙</span>Settings</div>
+</div>
+
+<script>
+const wrap = document.getElementById('timerWrap');
+const disc = document.getElementById('disc');
+const timeEl = document.getElementById('timeEl');
+const iconEl = document.getElementById('iconEl');
+const bar = document.getElementById('progressBar');
+const satA = document.getElementById('satA');
+const satB = document.getElementById('satB');
+const hintEl = document.getElementById('hint');
+
+const CIRC = 2 * Math.PI * 126; // ≈791.68
+let state = 'idle';
+let secs = 25 * 60;
+let totalSecs = 25 * 60;
+let iv = null;
+
+bar.style.strokeDasharray = CIRC;
+bar.style.strokeDashoffset = '0';
+
+function fmt(s) {
+  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+
+function updateUI() {
+  timeEl.textContent = fmt(secs);
+  // 进度
+  const pct = 1 - secs / totalSecs;
+  bar.style.strokeDashoffset = (CIRC - CIRC * pct).toString();
+}
+
+function discClick() {
+  if (state === 'idle') go('running');
+  else if (state === 'running') go('paused');
+  else if (state === 'paused') go('running'); // 点圆盘=恢复
+}
+
+function go(s) {
+  state = s;
+  clearInterval(iv);
+
+  // Demo 按钮同步
+  document.querySelectorAll('.demo-sw button').forEach(b => {
+    b.classList.toggle('on', b.dataset.s === s);
+  });
+
+  // class
+  wrap.className = 'timer-wrap ' + s;
+
+  if (s === 'idle') {
+    iconEl.textContent = '▶';
+    satA.classList.remove('show');
+    satB.classList.remove('show');
+    hintEl.textContent = 'tap to start';
+    secs = totalSecs;
+    updateUI();
+    bar.style.strokeDashoffset = '0';
+    bar.style.opacity = '0';
+  } else if (s === 'running') {
+    iconEl.textContent = '❚❚';
+    satA.classList.remove('show');
+    satB.classList.remove('show');
+    hintEl.textContent = 'focusing…';
+    bar.style.opacity = '1';
+    iv = setInterval(() => {
+      if (secs > 0) { secs--; updateUI(); }
+      else go('idle');
+    }, 1000);
+  } else if (s === 'paused') {
+    iconEl.textContent = '▶';
+    hintEl.textContent = 'paused';
+    bar.style.opacity = '1';
+    // 卫星弹出 — 有先后 
+    setTimeout(() => satB.classList.add('show'), 60);
+    setTimeout(() => satA.classList.add('show'), 180);
+  }
+}
+
+function doReset() { secs = totalSecs; go('idle'); }
+function doSkip() { go('idle'); }
+
+function editTime() {
+  if (state === 'running') return; // 运行中不可改
+  const v = prompt('Focus time (minutes):', Math.floor(secs/60));
+  if (v && !isNaN(v) && +v > 0) {
+    totalSecs = parseInt(v) * 60;
+    secs = totalSecs;
+    updateUI();
+  }
+}
+
+// Demo 按钮
+document.querySelectorAll('.demo-sw button').forEach(b => {
+  b.addEventListener('click', () => go(b.dataset.s));
+});
+
+updateUI();
+</script>
+</body>
+</html>

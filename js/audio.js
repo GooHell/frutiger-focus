@@ -1,5 +1,5 @@
 ﻿/**
- * Frutiger Focus v1.3 - 白噪音/环境音模块
+ * Frutiger Focus v1.3.5 - 白噪音/环境音模块
  * 架构：
  *   - 有本地音频文件时：用 <audio> 元素加载（兼容 file:// 和 http://）
  *   - 无本地文件时：fallback 到 Web Audio API 程序化生成

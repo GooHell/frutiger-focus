@@ -1,7 +1,7 @@
 {
   "name": "Frutiger Focus",
   "short_name": "Frutiger Focus",
-  "description": "轻量级专注助手，番茄钟、待办事项、白噪音、专注统计",
+  "description": "轻量级专注助手，专注计时、待办事项、白噪音、专注统计",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#040d21",
